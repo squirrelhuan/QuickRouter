@@ -1,0 +1,20 @@
+<resources>
+    <style name="QuickAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <!-- 欢迎页背景 -->
+        <item name="android:windowBackground">@color/white</item>
+        <!--<item name="android:windowBackground">@drawable/layout_list_start_pic</item>-->
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    <style name="quick_actionbar_common">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColor">@color/qd_tab_textcolor</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <!--<item name="android:paddingTop">@android:dimen/status_bar_height</item>-->
+    </style>
+    <style name="quick_actionbar_common_weight">
+        <item name="android:textColor">@color/qd_actionbar_textcolor</item>
+        <item name="android:tint">@color/qd_actionbar_textcolor</item>
+    </style>
+</resources>

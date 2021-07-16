@@ -1,0 +1,5 @@
+include ':app',
+        ':qdRouter_library',
+        ':qdlogger_library'
+rootProject.name = "QuickRouter"
+project(':qdlogger_library').projectDir = new File('D:\\Android\\AndroidStudioProjects\\QDLogger\\qdlogger_library')

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="dodgerblue">#1E90FF</color> <!--闪兰色 -->
+    <!--—导航栏颜色-->
+    <color name="colorPrimary">#6495ED</color>
+    <!--—通知栏颜色-->
+    <color name="colorPrimaryDark">#886495ED</color>
+    <!--—控件选中后颜色-->
+    <color name="colorAccent">#ffff0000</color>
+    <color name="transparent_light_cc">#ccffffff</color>
+    <color name="qd_application_bg">#FFFFFF</color> <!--白色 -->
+
+    <color name="qd_btn_bg_disabled">#ffb4b4b4</color>
+    <color name="qd_btn_bg_pressed">#ffd4d4d4</color>
+    <color name="qd_btn_bg_normal">#fff4f4f4</color>
+
+    <color name="gray">#808080</color> <!--灰色 -->
+    <color name="white">#FFFFFF</color> <!--白色 -->
+    <color name="beige">#F5F5DC</color> <!--米色 -->
+    <color name="black">#000000</color> <!--黑色 -->
+    <color name="orange">#FFA500</color> <!--橙色 -->
+
+</resources>
