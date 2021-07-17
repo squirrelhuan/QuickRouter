@@ -108,6 +108,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         initCreatView(fragmentView);
         return fragmentView;
     }
+
     public void setThemeColor() {
         if(fragmentView.getBackground()==null) {//设置默认颜色
             //QDLogger.e("getBackground="+fragmentView.getBackground());
