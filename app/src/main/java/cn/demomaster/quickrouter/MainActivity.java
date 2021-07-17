@@ -62,11 +62,4 @@ public class MainActivity extends QuickActivity {
         });
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(getFragmentHelper().onKeyDown(this,keyCode, event)){
-           return false;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 }

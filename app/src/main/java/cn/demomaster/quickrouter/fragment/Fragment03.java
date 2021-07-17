@@ -46,4 +46,9 @@ public class Fragment03 extends QuickFragment {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;
     }
+
+    @Override
+    public boolean isUseActionBarLayout() {
+        return false;
+    }
 }

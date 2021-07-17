@@ -26,16 +26,30 @@ import cn.demomaster.qdrouter_library.base.fragment.ViewLifecycle;
  * @date 2019/1/10.
  * description：
  */
-public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedListener, NavigationInterface, OnReleaseListener {
+public class QuickFragmentHelper implements NavigationInterface, OnReleaseListener {
     AppCompatActivity activity;
-    public FragmentManager fragmentManager;
+    public static FragmentManager fragmentManager;
     List<Fragment> fragments;
-
+    static FragmentManager.OnBackStackChangedListener onBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+        @Override
+        public void onBackStackChanged() {
+            /*StringBuilder stringBuilder = new StringBuilder();
+            int count = 0;
+            if (fragmentManager != null) {
+                count = fragmentManager.getBackStackEntryCount();
+            }
+            stringBuilder.append("onBackStackChanged fragment count:" + getFragments().size() + ",stack count" + count + "\n\r");
+            for (Fragment fragment : getFragments()) {
+                stringBuilder.append(fragment.getClass().getSimpleName() + ",hash:" + fragment.hashCode() + ",visiable:" + fragment.isVisible() + "\n\r");
+            }
+            QDLogger.println(stringBuilder.toString());*/
+        }
+    };
     public QuickFragmentHelper(AppCompatActivity activity) {
         this.activity = activity;
         fragmentManager = activity.getSupportFragmentManager();
-        fragmentManager.removeOnBackStackChangedListener(this);
-        fragmentManager.addOnBackStackChangedListener(this);
+        fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
+        fragmentManager.addOnBackStackChangedListener(onBackStackChangedListener);
         fragments = new ArrayList<>();
     }
 
@@ -62,10 +76,12 @@ public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedLi
     }
 
     public boolean onKeyDown(Context context, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        if (fragmentManager!=null&&keyCode == KeyEvent.KEYCODE_BACK) {
             QDLogger.d("FragmentHelper", "size=" + getFragments().size() + ",BackStackEntryCount=" + getFragmentManager().getBackStackEntryCount());
-            if (getFragments().size() > 0) {
-                Fragment fragment = getFragments().get(getFragments().size() - 1);
+            int count = fragmentManager.getBackStackEntryCount();
+            if (count > 0) {
+                FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(count-1);
+                Fragment fragment = fragmentManager.findFragmentByTag(backStackEntry.getName());
                 if (fragment != null && fragment instanceof ViewLifecycle) {
                     boolean ret = ((ViewLifecycle) fragment).onKeyDown(keyCode, event);
                     return ret;
@@ -194,20 +210,6 @@ public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedLi
     }
 
     @Override
-    public void onBackStackChanged() {
-        StringBuilder stringBuilder = new StringBuilder();
-        int count = 0;
-        if (fragmentManager != null) {
-            count = fragmentManager.getBackStackEntryCount();
-        }
-        stringBuilder.append("onBackStackChanged fragment count:" + getFragments().size() + ",stack count" + count + "\n\r");
-        for (Fragment fragment : getFragments()) {
-            stringBuilder.append(fragment.getClass().getSimpleName() + ",hash:" + fragment.hashCode() + ",visiable:" + fragment.isVisible() + "\n\r");
-        }
-        QDLogger.println(stringBuilder.toString());
-    }
-
-    @Override
     public void navigate(FragmentActivity context, QuickFragment fragment, int containerViewId, Intent intent) {
         navigateForResult(context, null, fragment, containerViewId, intent, 0);
     }
@@ -242,7 +244,7 @@ public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedLi
         return builder;
     }
 
-    public void OnBackPressed() {
+    /*public void OnBackPressed() {
         //QDLogger.println("OnBackPressed1 " + getCurrentFragment());
         if (!fragmentManager.isStateSaved() && fragmentManager.popBackStackImmediate()) {
             Fragment currentFragment = getCurrentFragment();
@@ -252,11 +254,17 @@ public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedLi
             }
             return;
         }
-    }
+    }*/
 
     public void popBackStack(Fragment fragment) {
         if (fragment != null) {
-            fragmentManager.popBackStack(getFragmentTag(fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            try {
+                if(!fragmentManager.isStateSaved()) {
+                    fragmentManager.popBackStack(getFragmentTag(fragment), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -272,7 +280,9 @@ public class QuickFragmentHelper implements FragmentManager.OnBackStackChangedLi
             如果tag不为null，那就会找到这个tag所对应的fragment，flags为0时，弹出该
             fragment以上的Fragment，如果是1，弹出该fragment（包括该fragment）以*/
             try {
-                fragmentManager.popBackStack(firstStackEntry.getId(), 0);
+                if(!fragmentManager.isStateSaved()) {
+                    fragmentManager.popBackStack(firstStackEntry.getId(), 0);
+                }
             }catch (Exception e){
                 QDLogger.e(e);
             }

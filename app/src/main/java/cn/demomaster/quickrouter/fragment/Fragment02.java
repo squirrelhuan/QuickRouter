@@ -18,7 +18,6 @@ import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.quickrouter.R;
 
 public class Fragment02 extends QuickFragment {
-
     TextView text;
 
     @Override
@@ -49,4 +48,8 @@ public class Fragment02 extends QuickFragment {
         return false;
     }
 
+    @Override
+    public boolean isUseActionBarLayout() {
+        return false;
+    }
 }

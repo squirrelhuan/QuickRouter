@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,9 @@ import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.qdrouter_library.util.StatusBarUtil;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
+
+import static android.view.KeyEvent.ACTION_DOWN;
+import static android.view.KeyEvent.KEYCODE_BACK;
 
 /**
  * Created by Squirrel桓 on 2019/1/3.
@@ -133,18 +137,23 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         initView(mView);
     }
     public void onClickBack() {
-      /* 模拟点击 int eventCode = KEYCODE_BACK;
+       //模拟点击
+        int eventCode = KEYCODE_BACK;
         long now = SystemClock.uptimeMillis();
         KeyEvent down = new KeyEvent(now, now, ACTION_DOWN, eventCode, 0);
+        //getFragmentHelper().onKeyDown(getContext(),eventCode,down);
         //boolean ret = ((QDFragmentInterface) qdFragment).onKeyDown(eventCode, down);
-        getActivity().onKeyDown(eventCode, down);*/
-        getFragmentHelper().OnBackPressed();
+        getActivity().onKeyDown(eventCode, down);
+        //getFragmentHelper().OnBackPressed();
     }
     
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        QDLogger.println("$"+hashCode()+"-"+getClass().getSimpleName()+":" + (hidden?"隐藏":"显示"));
+        QDLogger.println("$"+hashCode()+"-"+getClass().getSimpleName()+":" + (hidden?"隐藏":"显示")+",isVisible="+isVisible());
+        if(!hidden&&isAdded()&&getActivity()!=null){
+            doResume();
+        }
     }
 
     private ActionBarTool actionBarTool;
@@ -192,7 +201,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     @Override
     public void onStart() {
         super.onStart();
-        QDLogger.i("onStart$"+hashCode()+"-"+getClass().getSimpleName());
+        //QDLogger.i("onStart$"+hashCode()+"-"+getClass().getSimpleName());
     }
 
     @Override
