@@ -65,7 +65,6 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
 
     //是否可以被点击 false点击穿透
     private boolean clickable = true;
-
     public void setClickable(boolean clickable) {
         this.clickable = clickable;
     }
