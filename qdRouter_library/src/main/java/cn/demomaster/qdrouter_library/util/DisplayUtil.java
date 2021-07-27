@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.TypedValue;
-
 import java.lang.reflect.Field;
-
 import cn.demomaster.qdrouter_library.R;
-
 
 /**
  * @author squirrel桓

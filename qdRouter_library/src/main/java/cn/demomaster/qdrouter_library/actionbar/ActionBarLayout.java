@@ -128,13 +128,11 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         // super.onLayout(changed, left, top, right, bottom);
-        layoutChildren(left, top, right, bottom, false /* no force left gravity */);
+        layoutChildren1(left, top, right, bottom, false /* no force left gravity */);
     }
 
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    void layoutChildren(int left, int top, int right, int bottom, boolean forceLeftGravity) {
+    void layoutChildren1(int left, int top, int right, int bottom, boolean forceLeftGravity) {
         //按顺序
         layoutChildren2(mBuilder.statusbarView, left, top, right, bottom, forceLeftGravity);
         layoutChildren2(mBuilder.actionBarView, left, top, right, bottom, forceLeftGravity);
@@ -150,7 +148,6 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     void layoutChildren2(final View child, int left, int top, int right, int bottom, boolean forceLeftGravity) {
         if (child == null) {
             return;
@@ -178,7 +175,10 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
 
             int childLeft;
             int childTop;
-            final int layoutDirection = getLayoutDirection();
+            int layoutDirection = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                layoutDirection = getLayoutDirection();
+            }
             final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
             final int verticalGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
             switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {

@@ -41,12 +41,18 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     public boolean isUseActionBarLayout() {
         return true;
     }
+
+    @Override
+    public boolean isTransparencyBar() {
+        return true;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = (AppCompatActivity) this.getContext();
         QDLogger.i("onCreate$"+hashCode()+"-"+getClass().getSimpleName());
-        StatusBarUtil.transparencyBar(new WeakReference<>(mContext));
+        //StatusBarUtil.transparencyBar(new WeakReference<>(mContext));
     }
 
     private View fragmentView;
@@ -57,10 +63,10 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         return fragmentView.findViewById(id);
     }
 
-    private int headlayoutResID = R.layout.qd_activity_actionbar_common;
+    //private int headlayoutResID = R.layout.qd_activity_actionbar_common;
 
     public int getHeadlayoutResID() {
-        return headlayoutResID;
+        return R.layout.qd_activity_actionbar_common;
     }
 
     //是否可以被点击 false点击穿透
@@ -86,6 +92,10 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         //return super.onCreateView(inflater, container, savedInstanceState);
         View view = onGenerateView(inflater, container, savedInstanceState);
         if (isUseActionBarLayout()) {
+            /*ActionBarTool.Builder builder = new ActionBarTool.Builder(getActivity());
+            fragmentView = builder.setContentView(view)
+                    .setActionView(getHeadlayoutResID())
+                    .inflateView();*/
             getActionBarTool().setContentView(view);
             getActionBarTool().setActionView(getHeadlayoutResID());
             //生成最終的view
@@ -105,8 +115,14 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         }
         fragmentView.setClickable(clickable);// 防止点击穿透，底层的fragment响应上层点击触摸事件
         setThemeColor();
-        initCreatView(fragmentView);
         return fragmentView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        QDLogger.e("onViewCreated");
+        initCreatView(fragmentView);
     }
 
     public void setThemeColor() {
@@ -134,6 +150,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     }
 
     public void initCreatView(View mView) {
+        QDLogger.e("initCreatView");
         initView(mView);
     }
     public void onClickBack() {

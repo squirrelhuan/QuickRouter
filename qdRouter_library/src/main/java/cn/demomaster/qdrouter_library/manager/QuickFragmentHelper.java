@@ -115,7 +115,6 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
 
     /**
      * 获取当前激活状态的fragment，即最顶层的fragment活动页面
-     *
      * @return
      */
     public Fragment getCurrentFragment() {
@@ -126,14 +125,18 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
         return null;
     }
 
-    public void hideFragment(Fragment fragment) {
+    public static void hideFragment(Fragment fragment) {
         QDLogger.d("hideFragment:" + fragment);
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
         transaction.hide(fragment);
         transaction.commit();
     }
-
+    public static void showFragment(Fragment fragment) {
+        QDLogger.d("showFragment:" + fragment);
+        FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
+        transaction.show(fragment);
+        transaction.commit();
+    }
     int containerViewId;
     /* int animation1 = R.anim.slide_in_right;
      int animation2 = R.anim.slide_out_left;
@@ -204,7 +207,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
             fragments = null;
         }
         if (fragmentManager != null) {
-            fragmentManager.removeOnBackStackChangedListener(this);
+            fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
             fragmentManager = null;
         }
     }

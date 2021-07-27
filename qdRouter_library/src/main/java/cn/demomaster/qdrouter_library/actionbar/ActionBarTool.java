@@ -1,6 +1,7 @@
 package cn.demomaster.qdrouter_library.actionbar;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -20,15 +21,11 @@ import static cn.demomaster.qdrouter_library.actionbar.ACTIONBAR_TYPE.NORMAL;
 
 public class ActionBarTool implements ActionBarLayoutInterface {
     Activity activity;
-    Fragment fragment;
-
     public ActionBarTool(Activity activity) {
         this.activity = activity;
     }
-
     public ActionBarTool(Fragment fragment) {
         this.activity = fragment.getActivity();
-        this.fragment = fragment;
     }
 
     View mActionView;
@@ -37,7 +34,7 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     public ActionBarLayout getActionBarLayout() {
         return actionBarLayout;
     }
-    
+
     public void setContentView(int contentViewId) {
         this.setContentView(getLayoutInflater().inflate(contentViewId, null));
     }
@@ -59,11 +56,12 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     public void setActionView(View actionView) {
         mActionView = actionView;
     }
-    
+
     ACTIONBAR_TYPE actionbarType = NORMAL;
-    
+
     /**
      * 设置导航栏样式
+     *
      * @param actionbarType
      */
     public void setActionBarType(ACTIONBAR_TYPE actionbarType) {
@@ -77,7 +75,7 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     private boolean hasStatusBar = true;
     private boolean hasActionBar = true;
     private ActionBarLayout.PaddingWith actionBarPaddingTop = ActionBarLayout.PaddingWith.none;
-    
+
     public void setHasStatusBar(boolean hasStatusBar) {
         this.hasStatusBar = hasStatusBar;
         if (actionBarLayout != null) {
@@ -110,10 +108,13 @@ public class ActionBarTool implements ActionBarLayoutInterface {
             actionBarLayout.setMixStatusActionBar(mixStatusActionBar);
         }
     }
+    boolean isUseActionBarLayout;
+    public void setUseActionBarLayout(boolean useActionBarLayout) {
+        isUseActionBarLayout = useActionBarLayout;
+    }
 
     public View inflateView() {
-        if (mActionView != null && actionBarLayout == null) {
-            ActionBarLayout.Builder builder = new ActionBarLayout.Builder(activity,actionbarType);
+            ActionBarLayout.Builder builder = new ActionBarLayout.Builder(activity, actionbarType);
             int statusHeight = DisplayUtil.getStatusBarHeight(activity);
             actionBarLayout = builder.setStatusHeight(statusHeight)
                     .setHasStatusBar(hasStatusBar)
@@ -126,9 +127,6 @@ public class ActionBarTool implements ActionBarLayoutInterface {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 actionBarLayout.setId(View.generateViewId());
             }
-        } else {
-            return mContentView;
-        }
         return actionBarLayout;
     }
 
@@ -164,8 +162,8 @@ public class ActionBarTool implements ActionBarLayoutInterface {
 
     @Override
     public void setLeftOnClickListener(View.OnClickListener onClickListener) {
-        if(getLeftView()!=null)
-        getLeftView().setOnClickListener(onClickListener);
+        if (getLeftView() != null)
+            getLeftView().setOnClickListener(onClickListener);
     }
 
     boolean isLightModle = false;//亮色
@@ -247,5 +245,54 @@ public class ActionBarTool implements ActionBarLayoutInterface {
             return actionBarLayout.findViewById(R.id.it_actionbar_common_left);
         }
         return null;
+    }
+
+    public static class Builder {
+        Activity activity;
+        View actionView;
+        View contentView;
+
+        ACTIONBAR_TYPE actionbarType = NORMAL;
+        private boolean mixStatusActionBar = true;//状态栏和导航栏融合
+        private boolean hasStatusBar = true;
+        private boolean hasActionBar = true;
+        private ActionBarLayout.PaddingWith actionBarPaddingTop = ActionBarLayout.PaddingWith.none;
+
+        public Builder(Activity activity) {
+            this.activity = activity;
+        }
+
+        public Builder setActionView(View actionView) {
+            this.actionView = actionView;
+            return this;
+        }
+
+        public Builder setContentView(View contentView) {
+            this.contentView = contentView;
+            return this;
+        }
+
+        public Builder setActionView(int actionbarViewId) {
+            LayoutInflater layoutInflater = activity.getLayoutInflater();
+            View view = layoutInflater.inflate(actionbarViewId, null);
+            return setActionView(view);
+        }
+
+        public ActionBarLayout inflateView(){
+            ActionBarLayout.Builder builder = new ActionBarLayout.Builder(activity, actionbarType);
+            int statusHeight = DisplayUtil.getStatusBarHeight(activity);
+            ActionBarLayout actionBarLayout = builder.setStatusHeight(statusHeight)
+                    .setHasStatusBar(hasStatusBar)
+                    .setHasActionBar(hasActionBar)
+                    .setContentView(contentView)
+                    .setContentViewPaddingTop(actionBarPaddingTop)
+                    .setMixStatusActionBar(mixStatusActionBar)
+                    .setActionBarView(actionView)
+                    .creat();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                actionBarLayout.setId(View.generateViewId());
+            }
+            return actionBarLayout;
+        }
     }
 }

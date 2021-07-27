@@ -30,10 +30,14 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     public void onClickBack() {
         finish();
     }
-
     ///是否使用自定义导航
     @Override
     public boolean isUseActionBarLayout() {
+        return true;
+    }
+
+    @Override
+    public boolean isTransparencyBar() {
         return true;
     }
 
@@ -56,10 +60,12 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         mContext = this;
         super.onCreate(savedInstanceState);
         QDLogger.i("onCreate-"+getClass().getSimpleName()+"-"+hashCode());
+        if(isTransparencyBar()){
+            StatusBarUtil.transparencyBar(new WeakReference<Activity>(mContext));
+        }
         /*if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }*/
-        //getSupportActionBar();
         //setSupportActionBar(new QuickToolbar(this));
     }
 
@@ -85,7 +91,6 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
      */
     public View decorateView(View view) {
         if (isUseActionBarLayout()) {//是否使用自定义导航栏
-            StatusBarUtil.transparencyBar(new WeakReference<Activity>(mContext));
             //actionBarLayout = getActionBarLayout(view);
             getActionBarTool().setContentView(view);
             getActionBarTool().setActionView(getHeaderlayout());
@@ -148,6 +153,9 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
 
     public void startFragment(QuickFragment fragment, int parentId) {
         getFragmentHelper().startFragment(fragment, parentId);
+    }
+    public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
+        getFragmentHelper().navigate(mContext,fragment, parentId,intent);
     }
 
     public void startActivity(Class<?> clazz) {
