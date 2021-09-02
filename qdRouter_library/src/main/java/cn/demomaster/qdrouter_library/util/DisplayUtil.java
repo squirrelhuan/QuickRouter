@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.TypedValue;
+
 import java.lang.reflect.Field;
+
 import cn.demomaster.qdrouter_library.R;
 
 /**
@@ -13,9 +15,9 @@ import cn.demomaster.qdrouter_library.R;
  * description：
  */
 public class DisplayUtil {
-
+    
     static int status_bar_height;
-
+    
     /**
      * 获取状态栏高度
      *
@@ -23,6 +25,11 @@ public class DisplayUtil {
      * @return
      */
     public static int getStatusBarHeight(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if(((Activity)context).isInMultiWindowMode()){//小窗模式隐藏状态栏
+                return  0;
+            }
+        }
         if (status_bar_height != 0) {
             return status_bar_height;
         }

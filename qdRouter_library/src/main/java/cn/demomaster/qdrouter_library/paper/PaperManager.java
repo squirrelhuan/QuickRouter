@@ -53,7 +53,7 @@ public class PaperManager {
     }
 
     public ViewGroup getContainerView() {
-        return ((ViewGroup) activity.findViewById(containerViewId));
+        return activity.findViewById(containerViewId);
     }
 
     public void removePayer(String name) {
@@ -89,7 +89,6 @@ public class PaperManager {
         }
 
         removePayer(key);
-        return;
     }
 
    public Paper getTopPaper(){

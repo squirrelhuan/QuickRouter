@@ -30,22 +30,21 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     AppCompatActivity activity;
     public static FragmentManager fragmentManager;
     List<Fragment> fragments;
-    static FragmentManager.OnBackStackChangedListener onBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
-        @Override
-        public void onBackStackChanged() {
-            /*StringBuilder stringBuilder = new StringBuilder();
-            int count = 0;
-            if (fragmentManager != null) {
-                count = fragmentManager.getBackStackEntryCount();
-            }
-            stringBuilder.append("onBackStackChanged fragment count:" + getFragments().size() + ",stack count" + count + "\n\r");
-            for (Fragment fragment : getFragments()) {
-                stringBuilder.append(fragment.getClass().getSimpleName() + ",hash:" + fragment.hashCode() + ",visiable:" + fragment.isVisible() + "\n\r");
-            }
-            QDLogger.println(stringBuilder.toString());*/
+    static FragmentManager.OnBackStackChangedListener onBackStackChangedListener = () -> {
+        /*StringBuilder stringBuilder = new StringBuilder();
+        int count = 0;
+        if (fragmentManager != null) {
+            count = fragmentManager.getBackStackEntryCount();
         }
+        stringBuilder.append("onBackStackChanged fragment count:" + getFragments().size() + ",stack count" + count + "\n\r");
+        for (Fragment fragment : getFragments()) {
+            stringBuilder.append(fragment.getClass().getSimpleName() + ",hash:" + fragment.hashCode() + ",visiable:" + fragment.isVisible() + "\n\r");
+        }
+        QDLogger.println(stringBuilder.toString());*/
     };
-    public QuickFragmentHelper(AppCompatActivity activity) {
+    int containerViewId;
+    public QuickFragmentHelper(AppCompatActivity activity,int containerViewId) {
+        this.containerViewId=containerViewId;
         this.activity = activity;
         fragmentManager = activity.getSupportFragmentManager();
         fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
@@ -76,12 +75,13 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     }
 
     public boolean onKeyDown(Context context, int keyCode, KeyEvent event) {
-        if (fragmentManager!=null&&keyCode == KeyEvent.KEYCODE_BACK) {
-            QDLogger.d("FragmentHelper", "size=" + getFragments().size() + ",BackStackEntryCount=" + getFragmentManager().getBackStackEntryCount());
+        if (fragmentManager!=null) {//&&
             int count = fragmentManager.getBackStackEntryCount();
+            QDLogger.d( "keyCode="+keyCode+",size=" + getFragments().size() + ",BackStackEntryCount=" + count);
             if (count > 0) {
                 FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(count-1);
                 Fragment fragment = fragmentManager.findFragmentByTag(backStackEntry.getName());
+                QDLogger.d( "fragment="+fragment.getClass().getName());
                 if (fragment != null && fragment instanceof ViewLifecycle) {
                     boolean ret = ((ViewLifecycle) fragment).onKeyDown(keyCode, event);
                     return ret;
@@ -137,7 +137,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
         transaction.show(fragment);
         transaction.commit();
     }
-    int containerViewId;
+
     /* int animation1 = R.anim.slide_in_right;
      int animation2 = R.anim.slide_out_left;
      int animation3 = R.anim.slide_in_left;
@@ -146,18 +146,18 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     int animation2 = R.anim.h5_slide_out_left;
     int animation3 = R.anim.h5_slide_in_left;
     int animation4 = R.anim.h5_slide_out_right;
-    public void startFragment(QuickFragment fragment) {
+    private void startFragment(QuickFragment fragment) {
+        QDLogger.i("containerViewId="+containerViewId);
         startFragment(fragment, containerViewId);
     }
-    public void startFragment(QuickFragment fragment, int containerViewId) {
+    private void startFragment(QuickFragment fragment, int containerViewId) {
         fragment.setFragmentHelper(this);
-        this.containerViewId = containerViewId;
         addFragment(fragment, containerViewId);
     }
 
     public void addFragment(QuickFragment fragment, int containerViewId) {
         Fragment currentFragment = getCurrentFragment();
-        QDLogger.i("添加:" + getFragmentTag(fragment) + ",Fragment Size=" + getFragments().size());
+        QDLogger.i("添加:" + getFragmentTag(fragment) + ",Fragment Size=" + getFragments().size()+",current="+currentFragment);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         //这里注意动画要优先添加到事物列表中，否则会出现动画异常
         if (fragmentManager.getBackStackEntryCount() > 0) {
@@ -169,7 +169,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
             transaction.hide(currentFragment);
         }
         transaction.commitAllowingStateLoss();//.commit();会报错，commitAllowingStateLoss不会报错，activity状态可能会丢失
-        if (currentFragment != null && currentFragment instanceof QuickFragment) {
+        if (currentFragment instanceof QuickFragment) {
             ((QuickFragment) currentFragment).doPause();
         }
     }
@@ -290,7 +290,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
                 QDLogger.e(e);
             }
             Fragment currentFragment = fragmentManager.findFragmentByTag(firstStackEntry.getName());
-            if (currentFragment != null && currentFragment instanceof QuickFragment) {
+            if (currentFragment instanceof QuickFragment) {
                 QDLogger.i("强制 resume:" +getFragmentTag(currentFragment));
                 ((QuickFragment) currentFragment).doResume();
             }
@@ -302,7 +302,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     /**
      * 回退到某个fragment
      *
-     * @param fragmentClass
+     * @param 
      */
     /*public void backTo1(Class fragmentClass) {
         int count = fragmentManager.getBackStackEntryCount();
@@ -334,7 +334,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     /**
      * 弹出其他栈，仅保留某class集合内的activity
      *
-     * @param classList 要保留的 activity 类
+     * @param  
      */
     /*public void popOtherFragmentExceptList(List<Class> classList) {
         if (classList == null) {
@@ -406,6 +406,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
                 QuickFragment fragment = (QuickFragment) fragmentClass.newInstance();
                 Intent intent = new Intent();
                 intent.putExtras(bundle);
+                fragment.setArguments(bundle);
                 fragment.setIntent(intent);
                 fragmentHelper.redirect(context, fragment, containerViewId);
             } catch (Exception e) {
@@ -430,6 +431,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
                 Intent intent = new Intent();
                 if (bundle != null) {
                     intent.putExtras(bundle);
+                    fragment.setArguments(bundle);
                 }
                 if (isForResult) {
                     fragmentHelper.navigateForResult(context, viewLifecycle, fragment, containerViewId, intent, requestCode);

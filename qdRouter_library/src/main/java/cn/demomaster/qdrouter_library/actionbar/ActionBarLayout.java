@@ -14,10 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import cn.demomaster.qdrouter_library.R;
-import cn.demomaster.qdrouter_library.util.DisplayUtil;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
 
 public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
+
     public ActionBarLayout(@NonNull Context context) {
         super(context);
     }
@@ -66,15 +66,18 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
         View actionBarView = mBuilder.actionBarView;
         if (actionBarView != null) {
             int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
-                    DisplayUtil.getScreenWidth(getContext()), MeasureSpec.AT_MOST);
+                    getMeasuredWidth(), MeasureSpec.AT_MOST);
+
             int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                    DisplayUtil.getScreenHeight(getContext()), MeasureSpec.AT_MOST);
+                    getMeasuredHeight(), MeasureSpec.AT_MOST);
             actionBarView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
-            int[] location = new int[2];
-            //mBuilder.contentView.getLocationInWindow(location); //获取在当前窗口内的绝对坐标
-            actionBarView.getLocationOnScreen(location);//获取在整个屏幕内的绝对坐标
-            return location[1] + actionBarView.getMeasuredHeight();
+            //int[] location = new int[2];
+            //actionBarView.getLocationInWindow(location); //获取在当前窗口内的绝对坐标
+            //actionBarView.getLocationOnScreen(location);//获取在整个屏幕内的绝对坐标
+            int h = actionBarView.getMeasuredHeight();
+            int top = actionBarView.getTop();
+            return top + h;
         }
         return 0;
     }
@@ -88,8 +91,7 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
     }
 
     protected void measureChildren2(View view) {
-        int[] location;
-        location = new int[2];
+        int[] location = new int[2];
         int h = 0;
         int actionBarHeight = 0;
         if (mBuilder.actionBarView != null) {
@@ -128,15 +130,15 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         // super.onLayout(changed, left, top, right, bottom);
-        layoutChildren1(left, top, right, bottom, false /* no force left gravity */);
+        layoutChildren1(left, top, right, bottom  /* no force left gravity */);
     }
 
     private static final int DEFAULT_CHILD_GRAVITY = Gravity.TOP | Gravity.START;
-    void layoutChildren1(int left, int top, int right, int bottom, boolean forceLeftGravity) {
+    void layoutChildren1(int left, int top, int right, int bottom) {
         //按顺序
-        layoutChildren2(mBuilder.statusbarView, left, top, right, bottom, forceLeftGravity);
-        layoutChildren2(mBuilder.actionBarView, left, top, right, bottom, forceLeftGravity);
-        layoutChildren2(mBuilder.contentView, left, top, right, bottom, forceLeftGravity);
+        layoutChildren2(mBuilder.statusbarView, left, top, right, bottom, false);
+        layoutChildren2(mBuilder.actionBarView, left, top, right, bottom, false);
+        layoutChildren2(mBuilder.contentView, left, top, right, bottom, false);
 
         final int count = getChildCount();
         for (int i = count - 1; i > 0; i--) {
@@ -144,7 +146,7 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
             if (child == mBuilder.statusbarView || child == mBuilder.actionBarView || child == mBuilder.contentView) {
                 continue;
             }
-            layoutChildren2(mBuilder.contentView, left, top, right, bottom, forceLeftGravity);
+            layoutChildren2(mBuilder.contentView, left, top, right, bottom, false);
         }
     }
 
@@ -197,9 +199,6 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
             }
 
             switch (verticalGravity) {
-                case Gravity.TOP:
-                    childTop = parentTop + lp.topMargin;
-                    break;
                 case Gravity.CENTER_VERTICAL:
                     childTop = parentTop + (parentBottom - parentTop - height) / 2 +
                             lp.topMargin - lp.bottomMargin;
@@ -207,6 +206,7 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
                 case Gravity.BOTTOM:
                     childTop = parentBottom - height - lp.bottomMargin;
                     break;
+                case Gravity.TOP:
                 default:
                     childTop = parentTop + lp.topMargin;
             }
@@ -230,8 +230,6 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
         int childTop = 0;
         switch (mBuilder.actionbarType) {
             case NORMAL:
-                childTop = actionBarBottom;
-                break;
             case NO_STATUS:
                 childTop = actionBarBottom;
                 break;
@@ -266,6 +264,7 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
         if(mBuilder.contentView==null){
             return;
         }
+
         int statusBarHeight = mBuilder.statusHeight;
         int actionBarHeight = getActionBarHeight();
 
@@ -405,15 +404,17 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
         private View contentView;
         private final Activity activity;
 
-        public Builder(Activity activity, ACTIONBAR_TYPE actionbarType) {
+        public Builder(Activity activity) {
             this.activity = activity;
             setActionbarType(actionbarType);
         }
 
-        private void setActionbarType(ACTIONBAR_TYPE actionbarType) {
+        public void setActionbarType(ACTIONBAR_TYPE actionbarType) {
             this.actionbarType = actionbarType;
             switch (actionbarType) {
                 case NORMAL:
+                case ACTION_STACK:
+                    //case ACTION_TRANSPARENT:
                     hasStatusBar = true;
                     hasActionBar = true;
                     break;
@@ -426,21 +427,13 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
                     hasActionBar = false;
                     break;
                 case NO_STATUS:
+                case ACTION_STACK_NO_STATUS:
                     hasStatusBar = false;
-                    hasActionBar = true;
-                    break;
-                case ACTION_STACK:
-                    //case ACTION_TRANSPARENT:
-                    hasStatusBar = true;
                     hasActionBar = true;
                     break;
                 case ACTION_STACK_NO_ACTION:
                     hasStatusBar = true;
                     hasActionBar = false;
-                    break;
-                case ACTION_STACK_NO_STATUS:
-                    hasStatusBar = false;
-                    hasActionBar = true;
                     break;
             }
         }

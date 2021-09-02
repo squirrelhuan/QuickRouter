@@ -34,7 +34,6 @@ public class StatusBarUtil {
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
-
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Window window = activity.get().getWindow();
             window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
@@ -56,7 +55,7 @@ public class StatusBarUtil {
             window.setStatusBarColor(colorId);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             //使用SystemBarTint库使4.4版本状态栏变色，需要先将状态栏设置为透明
-            transparencyBar(new WeakReference<Activity>(activity));
+            transparencyBar(new WeakReference<>(activity));
             SystemBarTintManager tintManager = new SystemBarTintManager(activity);
             tintManager.setStatusBarTintEnabled(true);
             tintManager.setStatusBarTintResource(colorId);
@@ -170,7 +169,7 @@ public class StatusBarUtil {
                 window.setAttributes(lp);
                 result = true;
             } catch (Exception e) {
-
+e.printStackTrace();
             }
         }
         return result;
@@ -210,7 +209,7 @@ public class StatusBarUtil {
                     }
                 }
             } catch (Exception e) {
-
+e.printStackTrace();
             }
         }
         return result;

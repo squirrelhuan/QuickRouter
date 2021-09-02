@@ -85,23 +85,17 @@ public class ActionBarTip extends FrameLayout {
         this.itv_retry = contentView.findViewById(R.id.itv_retry);
         this.itv_retry.setTextSize(14);
         this.itv_retry.setText(getResources().getString(R.string.retry));
-        itv_retry.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (actionBarState != null && actionBarState.getOnLoadingStateListener() != null) {
-                    ActionBarTip.this.loading();
-                    //新线程处理耗时操作
-                    QdThreadHelper.runOnSubThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                actionBarState.getOnLoadingStateListener().loading();
-                            } catch (Exception e) {
-                                QDLogger.e(e);
-                            }
-                        }
-                    });
-                }
+        itv_retry.setOnClickListener(view -> {
+            if (actionBarState != null && actionBarState.getOnLoadingStateListener() != null) {
+                ActionBarTip.this.loading();
+                //新线程处理耗时操作
+                QdThreadHelper.runOnSubThread(() -> {
+                    try {
+                        actionBarState.getOnLoadingStateListener().loading();
+                    } catch (Exception e) {
+                        QDLogger.e(e);
+                    }
+                });
             }
         });
     }
@@ -118,69 +112,49 @@ public class ActionBarTip extends FrameLayout {
         retry = new ActionBarState.Loading() {
             @Override
             public void hide() {
-                QdThreadHelper.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //成功 结束并隐藏
-                        ActionBarTip.this.hide();
-                    }
+                QdThreadHelper.runOnUiThread(() -> {
+                    //成功 结束并隐藏
+                    ActionBarTip.this.hide();
                 });
             }
 
             @Override
             public void success() {
-                QdThreadHelper.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //成功 结束并隐藏
-                        ActionBarTip.this.completeAndHide();
-                    }
+                QdThreadHelper.runOnUiThread(() -> {
+                    //成功 结束并隐藏
+                    ActionBarTip.this.completeAndHide();
                 });
             }
 
             @Override
             public void fail() {
-                QdThreadHelper.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //失败 改变状态不隐藏
-                        ActionBarTip.this.errorAndShow();
-                    }
+                QdThreadHelper.runOnUiThread(() -> {
+                    //失败 改变状态不隐藏
+                    ActionBarTip.this.errorAndShow();
                 });
             }
 
             @Override
             public void success(final String message) {
-                QdThreadHelper.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //成功 结束并隐藏
-                        ActionBarTip.this.completeAndHide();
-                        textView.setText(message);
-                    }
+                QdThreadHelper.runOnUiThread(() -> {
+                    //成功 结束并隐藏
+                    ActionBarTip.this.completeAndHide();
+                    textView.setText(message);
                 });
             }
 
             @Override
             public void fail(final String message) {
-                QdThreadHelper.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //失败 改变状态不隐藏
-                        ActionBarTip.this.errorAndShow();
-                        textView.setText(message);
-                    }
+                QdThreadHelper.runOnUiThread(() -> {
+                    //失败 改变状态不隐藏
+                    ActionBarTip.this.errorAndShow();
+                    textView.setText(message);
                 });
             }
 
             @Override
             public void setText(final String message) {
-                ((Activity) getContext()).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textView.setText(message);
-                    }
-                });
+                ((Activity) getContext()).runOnUiThread(() -> textView.setText(message));
             }
         };
         actionBarState = new ActionBarState();
@@ -189,46 +163,38 @@ public class ActionBarTip extends FrameLayout {
             layoutParams_tip = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             setLayoutParams(layoutParams_tip);
         }
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //hide();
-            }
+        this.setOnClickListener(view -> {
+            //hide();
         });
 
-        this.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        position_Y = motionEvent.getY();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        position_Y = topMin + motionEvent.getY();
-                        if (stateType == ERROR || stateType == LOADING) {
-                            show();
-                        } else {
-                            hide();
-                        }
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        float distanc_y = motionEvent.getY() - position_Y;
+        this.setOnTouchListener((view, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_CANCEL:
+                    position_Y = motionEvent.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    position_Y = topMin + motionEvent.getY();
+                    if (stateType == ERROR || stateType == LOADING) {
+                        show();
+                    } else {
+                        hide();
+                    }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float distanc_y = motionEvent.getY() - position_Y;
 
-                        layoutParams_tip = (LayoutParams) getLayoutParams();
-                        int top_c = (int) (layoutParams_tip.topMargin + distanc_y);
-                        if (top_c > topMin && top_c < topMax) {
-                            layoutParams_tip.topMargin = top_c;
-                        }
-                        QDLogger.i("topMax=" + topMax + ",topMin=" + topMin);
-                        setLayoutParams(layoutParams_tip);
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        position_Y = motionEvent.getY();
-                        break;
-                }
-                //Log.i(TAG,"Y="+motionEvent.getY());
-                return false;
+                    layoutParams_tip = (LayoutParams) getLayoutParams();
+                    int top_c = (int) (layoutParams_tip.topMargin + distanc_y);
+                    if (top_c > topMin && top_c < topMax) {
+                        layoutParams_tip.topMargin = top_c;
+                    }
+                    QDLogger.i("topMax=" + topMax + ",topMin=" + topMin);
+                    setLayoutParams(layoutParams_tip);
+                    break;
             }
+            //Log.i(TAG,"Y="+motionEvent.getY());
+            return false;
         });
 
         setVisibility(INVISIBLE);
@@ -253,17 +219,14 @@ public class ActionBarTip extends FrameLayout {
     public void startAnimation() {
         animator = ValueAnimator.ofFloat(topMin, topMax);
         animator.setDuration(duration);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                layoutParams_tip.topMargin = (int) value;
-                setLayoutParams(layoutParams_tip);
-                if (value == topMin) {
-                    setVisibility(GONE);
-                } else {
-                    setVisibility(VISIBLE);
-                }
+        animator.addUpdateListener(animation -> {
+            float value = (float) animation.getAnimatedValue();
+            layoutParams_tip.topMargin = (int) value;
+            setLayoutParams(layoutParams_tip);
+            if (value == topMin) {
+                setVisibility(GONE);
+            } else {
+                setVisibility(VISIBLE);
             }
         });
         //animator.setRepeatMode(ValueAnimator.REVERSE);
@@ -275,7 +238,7 @@ public class ActionBarTip extends FrameLayout {
     public void show() {
         layoutParams_tip = (LayoutParams) getLayoutParams();
         if (animator != null) {
-            animator.setFloatValues(layoutParams_tip.topMargin, (int) (getHeight() + topMin));
+            animator.setFloatValues(layoutParams_tip.topMargin, getHeight() + topMin);
             animator.setDuration((int) (duration * ((float) ((getHeight() + topMin) - layoutParams_tip.topMargin) / getHeight())));
             animator.start();
         }
@@ -316,7 +279,7 @@ public class ActionBarTip extends FrameLayout {
         this.actionBarHeight = height;
         topMin = actionBarHeight - getHeight();
         topMax = actionBarHeight;
-        QDLogger.e("setActionBarHeight=" + height + ", getHeight()=" + getHeight() + ",topMin=" + topMin + ",topMax=" + topMax);
+        QDLogger.println("setActionBarHeight=" + height + ", getHeight()=" + getHeight() + ",topMin=" + topMin + ",topMax=" + topMax);
     }
 
     /**
@@ -410,7 +373,7 @@ public class ActionBarTip extends FrameLayout {
         super.setLayoutParams(params);
 
         LayoutParams layoutParams = (LayoutParams) getLayoutParams();
-        Rect rect = new Rect(0, (int) (-layoutParams.topMargin + topMax), getWidth(), getHeight());
+        Rect rect = new Rect(0, -layoutParams.topMargin + topMax, getWidth(), getHeight());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setClipBounds(rect);
         }

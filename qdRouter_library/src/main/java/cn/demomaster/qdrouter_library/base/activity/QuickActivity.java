@@ -2,10 +2,13 @@ package cn.demomaster.qdrouter_library.base.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -15,7 +18,6 @@ import java.lang.ref.WeakReference;
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
-import cn.demomaster.qdrouter_library.actionbar.QuickToolbar;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
 import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
@@ -46,7 +48,6 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     }
 
     private ActionBarTool actionBarTool;
-
     //获取自定义导航
     public ActionBarTool getActionBarTool() {
         if (actionBarTool == null) {
@@ -58,11 +59,14 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mContext = this;
+        actionBarTool = null;
+        fragmentHelper = null;
+        if(isTransparencyBar()){
+            StatusBarUtil.transparencyBar(new WeakReference<>(mContext));
+        }
         super.onCreate(savedInstanceState);
         QDLogger.i("onCreate-"+getClass().getSimpleName()+"-"+hashCode());
-        if(isTransparencyBar()){
-            StatusBarUtil.transparencyBar(new WeakReference<Activity>(mContext));
-        }
+
         /*if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }*/
@@ -79,8 +83,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     public void setContentView(View view) {
         View view1 = decorateView(view);
         super.setContentView(view1);
-        //bind在setContentView之后
-        //ButterKnife.bind(this);
+        //bind在setContentView之后 ButterKnife.bind(this);
         initContentView();
     }
 
@@ -91,18 +94,12 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
      */
     public View decorateView(View view) {
         if (isUseActionBarLayout()) {//是否使用自定义导航栏
-            //actionBarLayout = getActionBarLayout(view);
             getActionBarTool().setContentView(view);
             getActionBarTool().setActionView(getHeaderlayout());
             View view1 = getActionBarTool().inflateView();
             ImageTextView imageTextView = getActionBarTool().getLeftView();
             if (imageTextView != null) {
-                imageTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                });
+                imageTextView.setOnClickListener(v -> finish());
             }
             return view1;
         } else {
@@ -115,11 +112,34 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        //QDLogger.i("onNewIntent-"+getClass().getSimpleName()+"-"+hashCode());
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        QDLogger.i("onSaveInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        QDLogger.i("onRestoreInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        QDLogger.i("onStart-"+getClass().getSimpleName()+"-"+hashCode());
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         QDLogger.i("onResume-"+getClass().getSimpleName()+"-"+hashCode());
     }
-    
+
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
@@ -142,18 +162,18 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
             EventBus.getDefault().unregister(this);
         }
     }
-
+    public int getContentViewId() {
+        QDLogger.e("getDelegate()"+getDelegate()+",android.R.id.content="+android.R.id.content);
+        return android.R.id.content;//R.id.qd_fragment_content_view;
+    }
     public QuickFragmentHelper fragmentHelper;
     public QuickFragmentHelper getFragmentHelper() {
         if (fragmentHelper == null) {
-            fragmentHelper = new QuickFragmentHelper(mContext);
+            fragmentHelper = new QuickFragmentHelper(mContext,getContentViewId());
         }
         return fragmentHelper;
     }
 
-    public void startFragment(QuickFragment fragment, int parentId) {
-        getFragmentHelper().startFragment(fragment, parentId);
-    }
     public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
         getFragmentHelper().navigate(mContext,fragment, parentId,intent);
     }
@@ -172,13 +192,49 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        QDLogger.d( "onBackPressed" );
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        QDLogger.d("onKeyUp=" + keyCode + ",event=" + event);
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //QDLogger.d("getAction=" + keyCode + ",event=" + event);
+        //QDLogger.d("keyCode1=" + keyCode + ",event=" + event);
         if (fragmentHelper != null) {
-            if (fragmentHelper.onKeyDown(mContext, keyCode, event)) {
+            if(fragmentHelper.onKeyDown(mContext, keyCode, event)) {
+                QDLogger.d("点击事件已被fragment"+getClass().getName()+"消费 keyCode=" + keyCode + ",event=" + event);
                 return true;
             }
         }
+        //QDLogger.d( "keyCode2="+keyCode);
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (getApplicationInfo().targetSdkVersion
+                    >= Build.VERSION_CODES.ECLAIR) {
+                event.startTracking();
+                //QDLogger.d( "keyCode3");
+            } else {
+                onBackPressed();
+                //QDLogger.d( "keyCode4");
+            }
+            return true;
+        }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 判断Activity是否Destroy
+     * @param mActivity
+     * @return true:已销毁
+     */
+    public static boolean isDestroy(Activity mActivity) {
+        return mActivity == null ||
+                mActivity.isFinishing() ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mActivity.isDestroyed());
     }
 }

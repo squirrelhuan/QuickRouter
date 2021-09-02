@@ -181,7 +181,7 @@ public class LifecycleView extends View {
         for (Map.Entry entry : linePoints.entrySet()) {
             //drawLine(canvas, linePoints.get(i));
             List<LifeCycleEvent> lifeCycleEvents = (List<LifeCycleEvent>) entry.getValue();
-            centerY = getHeight() / 2;
+            centerY = getHeight() / 2f;
             Paint paint = new Paint();
             paint.setColor(lineColor);
             paint.setStyle(Paint.Style.STROKE);
@@ -246,7 +246,7 @@ public class LifecycleView extends View {
                 case MotionEvent.ACTION_MOVE:
 
                     break;
-                case MotionEvent.ACTION_POINTER_2_UP://第二个手指抬起的时候
+                case MotionEvent.ACTION_POINTER_UP://第二个手指抬起的时候
                     //needToHandle=true;
                     break;
                 default:
@@ -338,12 +338,7 @@ public class LifecycleView extends View {
         postInvalidate();
         int t = (transitionType == TransitionType.horizontal ? dx : dy);
         if (Math.abs(t) > 2) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    fling(dx, dy);
-                }
-            }, 10);
+            handler.postDelayed(() -> fling(dx, dy), 10);
         }
     }
 

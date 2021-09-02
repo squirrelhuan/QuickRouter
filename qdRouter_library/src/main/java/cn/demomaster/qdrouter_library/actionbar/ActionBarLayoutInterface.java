@@ -5,7 +5,7 @@ import android.view.View;
 public interface ActionBarLayoutInterface {
     View getRightView();
 
-    void setHeaderBackgroundColor(int red);
+    //void setHeaderBackgroundColor(int red);
 
     void setTitle(CharSequence string);
 

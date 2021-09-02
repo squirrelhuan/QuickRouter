@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Stack;
 
-
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.base.OnReleaseListener;
 import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleRecorder;
@@ -70,20 +69,17 @@ public class QDActivityManager {
         @Override
         public void onActivityPaused(Activity activity) {
             QDActivityManager.getInstance().onActivityPaused(activity);
-
             record(LifecycleType.onActivityPaused, activity);
         }
 
         @Override
         public void onActivityStopped(Activity activity) {
             QDActivityManager.getInstance().onActivityStopped(activity);
-
             record(LifecycleType.onActivityStopped, activity);
         }
 
         @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
             record(LifecycleType.onActivitySaveInstanceState, activity);
         }
 
@@ -116,17 +112,17 @@ public class QDActivityManager {
         Field[] fields = obj.getClass().getDeclaredFields();
         if (fields != null) {
             //QDLogger.println(obj+"属性个数：" + fields.length);
-            for (int i = 0, len = fields.length; i < len; i++) {
+            for (Field field : fields) {
                 // 对于每个属性，获取属性名
-                String varName = fields[i].getName();
+                String varName = field.getName();
                 try {
                     // 获取原来的访问控制权限
-                    boolean accessFlag = fields[i].isAccessible();
+                    boolean accessFlag = field.isAccessible();
                     // 修改访问控制权限
-                    fields[i].setAccessible(true);
+                    field.setAccessible(true);
                     // 获取在对象f中属性fields[i]对应的对象中的变量
                     Object o;
-                    o = fields[i].get(obj);
+                    o = field.get(obj);
                     if (o != null) {
                         //QDLogger.println("变量：" + varName + " = " + o);
                         if (o instanceof OnReleaseListener) {
@@ -137,7 +133,7 @@ public class QDActivityManager {
                             ((Handler) o).removeCallbacksAndMessages(null);
                         } else if (o instanceof Dialog) {
                             // QDLogger.println("释放dialog：" + varName);
-                            if(((Dialog) o).isShowing()) {
+                            if (((Dialog) o).isShowing()) {
                                 ((Dialog) o).dismiss();
                             }
                         } else if (o instanceof PopupWindow) {
@@ -145,7 +141,7 @@ public class QDActivityManager {
                             ((PopupWindow) o).dismiss();
                         } else if (o instanceof Bitmap) {
                             //QDLogger.println("释放Bitmap：" + varName);
-                            if(!((Bitmap) o).isRecycled()){
+                            if (!((Bitmap) o).isRecycled()) {
                                 ((Bitmap) o).recycle();
                                 o = null;
                             }
@@ -156,15 +152,15 @@ public class QDActivityManager {
                         } else if (o instanceof Animator) {
                             //QDLogger.println("释放Animator：" + varName);
                             ((Animator) o).cancel();
-                            if(o instanceof ValueAnimator){
+                            if (o instanceof ValueAnimator) {
                                 ((ValueAnimator) o).removeAllUpdateListeners();
                             }
-                        }else if(o instanceof Animation){
+                        } else if (o instanceof Animation) {
                             ((Animation) o).cancel();
                         }
                     }
                     // 恢复访问控制权限
-                    fields[i].setAccessible(accessFlag);
+                    field.setAccessible(accessFlag);
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
                     QDLogger.e(ex);
                 }
@@ -375,9 +371,6 @@ public class QDActivityManager {
         }
     }*/
 
-    /**
-     * 关闭所有activity
-     */
     /*public void deleteAllActivity() {
         for (Map.Entry entry : activitys.entrySet()) {
             Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
@@ -516,7 +509,7 @@ public class QDActivityManager {
 
     //判断当前界面显示的是哪个Activity
     public static String getTopActivity(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
         //QDLogger.d("测试", "pkg:"+cn.getPackageName()+ ",cls:"+cn.getClassName());//包名加类名
         return cn.getClassName();
@@ -529,7 +522,7 @@ public class QDActivityManager {
      * @return
      */
     public static String getTopPackageName(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         if (am.getRunningTasks(1) != null && am.getRunningTasks(1).size() > 0) {
             ComponentName componentName = am.getRunningTasks(1).get(0).topActivity;
             return componentName.getPackageName();
@@ -797,7 +790,6 @@ public class QDActivityManager {
 
     /**
      * 获取当前的 activity
-     *
      * @return act
      */
     public Activity getCurrentActivity() {
@@ -806,4 +798,5 @@ public class QDActivityManager {
         }
         return activityStack.lastElement();
     }
+
 }

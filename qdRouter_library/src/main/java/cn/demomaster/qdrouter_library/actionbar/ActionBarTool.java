@@ -1,7 +1,6 @@
 package cn.demomaster.qdrouter_library.actionbar;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -17,19 +16,26 @@ import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.util.DisplayUtil;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
 
-import static cn.demomaster.qdrouter_library.actionbar.ACTIONBAR_TYPE.NORMAL;
-
 public class ActionBarTool implements ActionBarLayoutInterface {
-    Activity activity;
+    final Activity activity;
     public ActionBarTool(Activity activity) {
         this.activity = activity;
-    }
-    public ActionBarTool(Fragment fragment) {
-        this.activity = fragment.getActivity();
+        init();
     }
 
-    View mActionView;
-    View mContentView;
+    public ActionBarTool(Fragment fragment) {
+        this.activity = fragment.getActivity();
+        init();
+    }
+    ActionBarLayout.Builder builder;
+    private void init() {
+        builder = new ActionBarLayout.Builder(activity);
+        int statusHeight = DisplayUtil.getStatusBarHeight(activity);
+        builder.setStatusHeight(statusHeight);
+    }
+
+    //View mActionView;
+    //View mContentView;
     ActionBarLayout actionBarLayout;
     public ActionBarLayout getActionBarLayout() {
         return actionBarLayout;
@@ -40,7 +46,8 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     }
 
     public void setContentView(View contentView) {
-        mContentView = contentView;
+        builder.setContentView(contentView);
+        //mContentView = contentView;
     }
 
     public LayoutInflater getLayoutInflater() {
@@ -54,37 +61,38 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     }
 
     public void setActionView(View actionView) {
-        mActionView = actionView;
+        //mActionView = actionView;
+        builder.setActionBarView(actionView);
     }
 
-    ACTIONBAR_TYPE actionbarType = NORMAL;
+   // ACTIONBAR_TYPE actionbarType = NORMAL;
 
     /**
      * 设置导航栏样式
-     *
      * @param actionbarType
      */
     public void setActionBarType(ACTIONBAR_TYPE actionbarType) {
-        this.actionbarType = actionbarType;
+        //this.actionbarType = actionbarType;
+        builder.setActionbarType(actionbarType);
         if (actionBarLayout != null) {
             actionBarLayout.setActionBarType(actionbarType);
         }
     }
 
     private boolean mixStatusActionBar = true;//状态栏和导航栏融合
-    private boolean hasStatusBar = true;
-    private boolean hasActionBar = true;
+    //private boolean hasStatusBar = true;
+    //private boolean hasActionBar = true;
     private ActionBarLayout.PaddingWith actionBarPaddingTop = ActionBarLayout.PaddingWith.none;
 
     public void setHasStatusBar(boolean hasStatusBar) {
-        this.hasStatusBar = hasStatusBar;
+        builder.setHasStatusBar(hasStatusBar);
         if (actionBarLayout != null) {
             actionBarLayout.setHasStatusBar(hasStatusBar);
         }
     }
 
     public void setHasActionBar(boolean hasActionBar) {
-        this.hasActionBar = hasActionBar;
+        builder.setHasActionBar(hasActionBar);
         if (actionBarLayout != null) {
             actionBarLayout.setHasActionBar(hasActionBar);
         }
@@ -108,21 +116,11 @@ public class ActionBarTool implements ActionBarLayoutInterface {
             actionBarLayout.setMixStatusActionBar(mixStatusActionBar);
         }
     }
-    boolean isUseActionBarLayout;
-    public void setUseActionBarLayout(boolean useActionBarLayout) {
-        isUseActionBarLayout = useActionBarLayout;
-    }
 
     public View inflateView() {
-            ActionBarLayout.Builder builder = new ActionBarLayout.Builder(activity, actionbarType);
-            int statusHeight = DisplayUtil.getStatusBarHeight(activity);
-            actionBarLayout = builder.setStatusHeight(statusHeight)
-                    .setHasStatusBar(hasStatusBar)
-                    .setHasActionBar(hasActionBar)
-                    .setContentView(mContentView)
+            actionBarLayout = builder
                     .setContentViewPaddingTop(actionBarPaddingTop)
                     .setMixStatusActionBar(mixStatusActionBar)
-                    .setActionBarView(mActionView)
                     .creat();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 actionBarLayout.setId(View.generateViewId());
@@ -132,33 +130,28 @@ public class ActionBarTool implements ActionBarLayoutInterface {
 
     @Override
     public ImageTextView getRightView() {
-        if (actionBarLayout == null) {
-            return null;
+        if (actionBarLayout != null) {
+            return actionBarLayout.findViewById(R.id.it_actionbar_common_right);
         }
-        return actionBarLayout.findViewById(R.id.it_actionbar_common_right);
+        return null;
     }
 
     public ImageTextView getTitleView() {
         return actionBarLayout.findViewById(R.id.it_actionbar_common_title);
     }
 
-    public void setHeaderBackgroundColor(int color) {
-        if (mActionView != null) {
-            mActionView.setBackgroundColor(color);
+   /* public void setHeaderBackgroundColor(int color) {
+        if (actionBarLayout.getActionBarView() != null) {
+            actionBarLayout.getActionBarView().setBackgroundColor(color);
         }
     }
-
+*/
     @Override
     public void setTitle(CharSequence string) {
         if (actionBarLayout != null) {
             actionBarLayout.setTitle(string);
         }
     }
-
-    /*@Override
-    public void setStateBarColorAuto(boolean b) {
-
-    }*/
 
     @Override
     public void setLeftOnClickListener(View.OnClickListener onClickListener) {
@@ -185,7 +178,7 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     public void setActionBarThemeColors(int lightColor, int darkColor) {
         textLightColor = lightColor;
         textDarkColor = darkColor;
-        resetTextColor(mActionView);
+        resetTextColor(actionBarLayout.getActionBarView());
     }
 
     public int getTextColor() {
@@ -230,7 +223,7 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     }
 
     public View getActionBarTool() {
-        return mActionView;
+        return actionBarLayout.getActionBarView();
     }
 
     public ActionBarTip getActionBarTip() {
@@ -247,52 +240,4 @@ public class ActionBarTool implements ActionBarLayoutInterface {
         return null;
     }
 
-    public static class Builder {
-        Activity activity;
-        View actionView;
-        View contentView;
-
-        ACTIONBAR_TYPE actionbarType = NORMAL;
-        private boolean mixStatusActionBar = true;//状态栏和导航栏融合
-        private boolean hasStatusBar = true;
-        private boolean hasActionBar = true;
-        private ActionBarLayout.PaddingWith actionBarPaddingTop = ActionBarLayout.PaddingWith.none;
-
-        public Builder(Activity activity) {
-            this.activity = activity;
-        }
-
-        public Builder setActionView(View actionView) {
-            this.actionView = actionView;
-            return this;
-        }
-
-        public Builder setContentView(View contentView) {
-            this.contentView = contentView;
-            return this;
-        }
-
-        public Builder setActionView(int actionbarViewId) {
-            LayoutInflater layoutInflater = activity.getLayoutInflater();
-            View view = layoutInflater.inflate(actionbarViewId, null);
-            return setActionView(view);
-        }
-
-        public ActionBarLayout inflateView(){
-            ActionBarLayout.Builder builder = new ActionBarLayout.Builder(activity, actionbarType);
-            int statusHeight = DisplayUtil.getStatusBarHeight(activity);
-            ActionBarLayout actionBarLayout = builder.setStatusHeight(statusHeight)
-                    .setHasStatusBar(hasStatusBar)
-                    .setHasActionBar(hasActionBar)
-                    .setContentView(contentView)
-                    .setContentViewPaddingTop(actionBarPaddingTop)
-                    .setMixStatusActionBar(mixStatusActionBar)
-                    .setActionBarView(actionView)
-                    .creat();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                actionBarLayout.setId(View.generateViewId());
-            }
-            return actionBarLayout;
-        }
-    }
 }
