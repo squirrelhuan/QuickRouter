@@ -50,7 +50,6 @@ public class ImageTextView extends AppCompatImageView {
     }
 
     AttributeHelper attributeHelper;
-
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
             attributeHelper = new AttributeHelper(context, attrs);

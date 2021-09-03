@@ -163,7 +163,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         }
     }
     public int getContentViewId() {
-        QDLogger.e("getDelegate()"+getDelegate()+",android.R.id.content="+android.R.id.content);
+        //QDLogger.e("getDelegate()"+getDelegate()+",android.R.id.content="+android.R.id.content);
         return android.R.id.content;//R.id.qd_fragment_content_view;
     }
     public QuickFragmentHelper fragmentHelper;
@@ -208,7 +208,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         //QDLogger.d("keyCode1=" + keyCode + ",event=" + event);
         if (fragmentHelper != null) {
             if(fragmentHelper.onKeyDown(mContext, keyCode, event)) {
-                QDLogger.d("点击事件已被fragment"+getClass().getName()+"消费 keyCode=" + keyCode + ",event=" + event);
+                //QDLogger.d("点击事件已被fragment"+getClass().getName()+"消费 keyCode=" + keyCode + ",event=" + event);
                 return true;
             }
         }

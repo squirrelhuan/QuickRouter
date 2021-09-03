@@ -77,7 +77,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     public boolean onKeyDown(Context context, int keyCode, KeyEvent event) {
         if (fragmentManager!=null) {//&&
             int count = fragmentManager.getBackStackEntryCount();
-            QDLogger.d( "keyCode="+keyCode+",size=" + getFragments().size() + ",BackStackEntryCount=" + count);
+            //QDLogger.d( "keyCode="+keyCode+",size=" + getFragments().size() + ",BackStackEntryCount=" + count);
             if (count > 0) {
                 FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(count-1);
                 Fragment fragment = fragmentManager.findFragmentByTag(backStackEntry.getName());
