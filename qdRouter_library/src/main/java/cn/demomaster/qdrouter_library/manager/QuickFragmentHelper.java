@@ -1,5 +1,6 @@
 package cn.demomaster.qdrouter_library.manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import cn.demomaster.qdrouter_library.base.fragment.ViewLifecycle;
  * @date 2019/1/10.
  * description：
  */
-public class QuickFragmentHelper implements NavigationInterface, OnReleaseListener {
+public class QuickFragmentHelper implements NavigationInterface {
     AppCompatActivity activity;
     public static FragmentManager fragmentManager;
     List<Fragment> fragments;
@@ -126,13 +127,13 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
     }
 
     public static void hideFragment(Fragment fragment) {
-        QDLogger.d("hideFragment:" + fragment);
+        QDLogger.i("hideFragment:" + fragment);
         FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
         transaction.hide(fragment);
         transaction.commit();
     }
     public static void showFragment(Fragment fragment) {
-        QDLogger.d("showFragment:" + fragment);
+        QDLogger.i("showFragment:" + fragment);
         FragmentTransaction transaction = fragment.getFragmentManager().beginTransaction();
         transaction.show(fragment);
         transaction.commit();
@@ -202,13 +203,21 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
         return content.getChildAt(0);
     }*/
 
-    public void onDestroy() {
-        if (fragments != null) {
-            fragments = null;
-        }
-        if (fragmentManager != null) {
-            fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
-            fragmentManager = null;
+    public void destroy(Object obj) {
+        if(obj instanceof Activity) {
+            if (fragments != null) {
+                fragments.clear();
+                fragments = null;
+            }
+            if (fragmentManager != null) {
+                fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
+                fragmentManager = null;
+            }
+            activity = null;
+        }else if(obj instanceof Fragment) {
+            if (fragments != null) {
+                fragments.remove(obj);
+            }
         }
     }
 
@@ -325,12 +334,6 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
         }
     }*/
 
-    /*释放*/
-    @Override
-    public void onRelease() {
-
-    }
-
     /**
      * 弹出其他栈，仅保留某class集合内的activity
      *
@@ -408,6 +411,7 @@ public class QuickFragmentHelper implements NavigationInterface, OnReleaseListen
                 intent.putExtras(bundle);
                 fragment.setArguments(bundle);
                 fragment.setIntent(intent);
+                fragment.setArguments(bundle);
                 fragmentHelper.redirect(context, fragment, containerViewId);
             } catch (Exception e) {
                 e.printStackTrace();

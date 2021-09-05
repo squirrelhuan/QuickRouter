@@ -22,6 +22,7 @@ import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
 import cn.demomaster.qdrouter_library.base.activity.QuickActivity;
 import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
+import cn.demomaster.qdrouter_library.manager.QuickRleaser;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
 
 import static android.view.KeyEvent.ACTION_DOWN;
@@ -328,16 +329,15 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     public void onDestroyView() {
         super.onDestroyView();
         QDLogger.i("onDestroyView$" + hashCode() + "-" + getClass().getSimpleName());
-        QDActivityManager.destroyObject(this);
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
-        QDActivityManager.destroyObject(this);
+        QuickRleaser.release(this);
+        super.onDestroy();
     }
 
     public boolean isRootFragment() {

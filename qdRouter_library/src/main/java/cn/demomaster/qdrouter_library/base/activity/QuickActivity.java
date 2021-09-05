@@ -21,6 +21,7 @@ import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
 import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
+import cn.demomaster.qdrouter_library.manager.QuickRleaser;
 import cn.demomaster.qdrouter_library.util.StatusBarUtil;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
 
@@ -150,7 +151,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
 
     @Override
     public void finish() {
-        QDActivityManager.destroyObject(this);
+        QuickRleaser.release(this);
         super.finish();
     }
 
