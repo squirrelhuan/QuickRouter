@@ -26,7 +26,7 @@ public interface ViewLifecycle extends QDBaseInterface {
     boolean onKeyDown(int keyCode, KeyEvent event);
     
     //void back();
-    void setFragmentHelper(QuickFragmentHelper fragmentHelper);
+    //void setFragmentHelper(QuickFragmentHelper fragmentHelper);
 
     void setIntent(Intent intent);
 

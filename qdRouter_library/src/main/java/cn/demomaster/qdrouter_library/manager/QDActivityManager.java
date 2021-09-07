@@ -43,7 +43,6 @@ public class QDActivityManager {
     private Context context;
     //本地activity栈
     private static Stack<Activity> activityStack;
-
     private QDActivityManager() {
     }
 

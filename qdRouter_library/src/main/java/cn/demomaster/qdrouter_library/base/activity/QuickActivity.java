@@ -200,7 +200,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        QDLogger.d("onKeyUp=" + keyCode + ",event=" + event);
+        //QDLogger.d("onKeyUp=" + keyCode + ",event=" + event);
         return super.onKeyUp(keyCode, event);
     }
 
@@ -238,4 +238,6 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
                 mActivity.isFinishing() ||
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mActivity.isDestroyed());
     }
+
+
 }

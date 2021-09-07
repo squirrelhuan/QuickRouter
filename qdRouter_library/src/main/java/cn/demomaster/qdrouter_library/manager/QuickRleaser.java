@@ -7,9 +7,12 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.base.OnReleaseListener;
@@ -34,8 +37,8 @@ public class QuickRleaser {
             //QDLogger.e(obj+"属性个数：" + fields.length);
             for (Field field : fields) {
                 // 对于每个属性，获取属性名
-                String varName = field.getName();
-                QDLogger.e(obj+".属性：" + varName);
+                //String varName = field.getName();
+                //QDLogger.e(obj+".属性：" + varName);
                 try {
                     // 获取原来的访问控制权限
                     boolean accessFlag = field.isAccessible();
@@ -67,16 +70,23 @@ public class QuickRleaser {
                             //System.gc();
                         } else if (o instanceof View) {
                             //QDLogger.println("释放View：" + varName);
+                            ((View) o).setOnLongClickListener(null);
                             ((View) o).setOnClickListener(null);
                             ((View) o).setOnTouchListener(null);
                             ((View) o).clearAnimation();
+                            if(o instanceof EditText){
+                                ((EditText) o).setCustomSelectionActionModeCallback(null);
+                               // ((EditText) o).addTextChangedListener(null);
+                            }
                         } else if (o instanceof Animator) {
                             //QDLogger.println("释放Animator：" + varName);
+                            ((Animator) o).removeAllListeners();
                             ((Animator) o).cancel();
                             if (o instanceof ValueAnimator) {
                                 ((ValueAnimator) o).removeAllUpdateListeners();
                             }
                         } else if (o instanceof Animation) {
+                            ((Animation) o).setAnimationListener(null);
                             ((Animation) o).cancel();
                         }
                     }

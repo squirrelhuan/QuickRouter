@@ -38,5 +38,4 @@ dependencies {
     implementation 'com.readystatesoftware.systembartint:systembartint:1.0.4'
 
     api project(path: ':qdlogger_library')
-
 }

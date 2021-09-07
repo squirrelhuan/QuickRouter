@@ -9,18 +9,17 @@ import java.lang.ref.WeakReference;
  * AttributeSet 帮助类,读取Android的属性
  */
 public class AttributeHelper {
-
+    
     public static final String ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android";
     
     private final WeakReference<Context> contextWeakReference;
     private final AttributeSet mAttrs;
-
+    
     public AttributeHelper(Context context, AttributeSet attrs) {
         contextWeakReference = new WeakReference<>(context);
         mAttrs = attrs;
     }
-
-
+    
     /**
      * 判断是否有指定的属性
      *

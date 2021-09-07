@@ -17,8 +17,6 @@ import java.util.List;
 
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
-import cn.demomaster.qdrouter_library.base.OnReleaseListener;
-import cn.demomaster.qdrouter_library.base.fragment.NavigationInterface;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
 import cn.demomaster.qdrouter_library.base.fragment.ViewLifecycle;
 
@@ -27,8 +25,7 @@ import cn.demomaster.qdrouter_library.base.fragment.ViewLifecycle;
  * @date 2019/1/10.
  * description：
  */
-public class QuickFragmentHelper implements NavigationInterface {
-    AppCompatActivity activity;
+public class QuickFragmentHelper {
     public static FragmentManager fragmentManager;
     List<Fragment> fragments;
     static FragmentManager.OnBackStackChangedListener onBackStackChangedListener = () -> {
@@ -37,8 +34,8 @@ public class QuickFragmentHelper implements NavigationInterface {
         if (fragmentManager != null) {
             count = fragmentManager.getBackStackEntryCount();
         }
-        stringBuilder.append("onBackStackChanged fragment count:" + getFragments().size() + ",stack count" + count + "\n\r");
-        for (Fragment fragment : getFragments()) {
+        stringBuilder.append("onBackStackChanged fragment count:" + ",stack count" + count + "\n\r");
+        for (Fragment fragment : ) {
             stringBuilder.append(fragment.getClass().getSimpleName() + ",hash:" + fragment.hashCode() + ",visiable:" + fragment.isVisible() + "\n\r");
         }
         QDLogger.println(stringBuilder.toString());*/
@@ -46,7 +43,6 @@ public class QuickFragmentHelper implements NavigationInterface {
     int containerViewId;
     public QuickFragmentHelper(AppCompatActivity activity,int containerViewId) {
         this.containerViewId=containerViewId;
-        this.activity = activity;
         fragmentManager = activity.getSupportFragmentManager();
         fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
         fragmentManager.addOnBackStackChangedListener(onBackStackChangedListener);
@@ -60,8 +56,8 @@ public class QuickFragmentHelper implements NavigationInterface {
      */
     public List<Fragment> getFragments() {
         List<Fragment> fragmentList = new ArrayList<>();
-        if (getFragmentManager().getFragments() != null) {
-            List<Fragment> fragmentList2 = getFragmentManager().getFragments();
+        List<Fragment> fragmentList2 = fragmentManager.getFragments();
+        if (fragmentList2!= null) {
             for (Fragment fragment : fragmentList2) {
                 if (fragment instanceof QuickFragment) {
                     fragmentList.add(fragment);
@@ -71,14 +67,10 @@ public class QuickFragmentHelper implements NavigationInterface {
         return fragmentList;
     }
 
-    public FragmentManager getFragmentManager() {
-        return fragmentManager;
-    }
-
     public boolean onKeyDown(Context context, int keyCode, KeyEvent event) {
         if (fragmentManager!=null) {//&&
             int count = fragmentManager.getBackStackEntryCount();
-            //QDLogger.d( "keyCode="+keyCode+",size=" + getFragments().size() + ",BackStackEntryCount=" + count);
+            //QDLogger.d( "keyCode="+keyCode+",size=" + fragmentManager..size() + ",BackStackEntryCount=" + count);
             if (count > 0) {
                 FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(count-1);
                 Fragment fragment = fragmentManager.findFragmentByTag(backStackEntry.getName());
@@ -152,13 +144,13 @@ public class QuickFragmentHelper implements NavigationInterface {
         startFragment(fragment, containerViewId);
     }
     private void startFragment(QuickFragment fragment, int containerViewId) {
-        fragment.setFragmentHelper(this);
+        //fragment.setFragmentHelper(this);
         addFragment(fragment, containerViewId);
     }
 
     public void addFragment(QuickFragment fragment, int containerViewId) {
         Fragment currentFragment = getCurrentFragment();
-        QDLogger.i("添加:" + getFragmentTag(fragment) + ",Fragment Size=" + getFragments().size()+",current="+currentFragment);
+        QDLogger.i("添加:" + getFragmentTag(fragment) +",current="+currentFragment);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         //这里注意动画要优先添加到事物列表中，否则会出现动画异常
         if (fragmentManager.getBackStackEntryCount() > 0) {
@@ -186,7 +178,7 @@ public class QuickFragmentHelper implements NavigationInterface {
     }
 
     public void replaceFragment(Fragment fragment, int containerViewId) {
-        QDLogger.println("replaceFragment:" + getFragmentTag(fragment) + ",containerViewId=" + containerViewId + ",getFragments()=" + getFragments().size());
+        QDLogger.println("replaceFragment:" + getFragmentTag(fragment) + ",containerViewId=" + containerViewId);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (fragmentManager.getBackStackEntryCount() > 0) {
             transaction.setCustomAnimations(animation1, animation2,
@@ -207,13 +199,10 @@ public class QuickFragmentHelper implements NavigationInterface {
         if(obj instanceof Activity) {
             if (fragments != null) {
                 fragments.clear();
-                fragments = null;
             }
             if (fragmentManager != null) {
                 fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
-                fragmentManager = null;
             }
-            activity = null;
         }else if(obj instanceof Fragment) {
             if (fragments != null) {
                 fragments.remove(obj);
@@ -221,12 +210,10 @@ public class QuickFragmentHelper implements NavigationInterface {
         }
     }
 
-    @Override
     public void navigate(FragmentActivity context, QuickFragment fragment, int containerViewId, Intent intent) {
         navigateForResult(context, null, fragment, containerViewId, intent, 0);
     }
 
-    @Override
     public void navigateForResult(FragmentActivity context, ViewLifecycle qdFragmentInterface, QuickFragment fragment, int containerViewId, Intent intent, int requestCode) {
         fragment.setIntent(intent);
         if (qdFragmentInterface != null) {
@@ -236,7 +223,6 @@ public class QuickFragmentHelper implements NavigationInterface {
     }
 
     //重定向
-    @Override
     public void redirect(FragmentActivity context, QuickFragment fragment, int containerViewId) {
         Fragment fragment1 = getCurrentFragment();
         //先移除当前的
@@ -246,13 +232,8 @@ public class QuickFragmentHelper implements NavigationInterface {
         startFragment(fragment, containerViewId);
     }
 
-    Builder builder;
     public Builder build(Context context, String classPath) {
-        if (builder == null) {
-            builder = new Builder(context, classPath, this);
-        } else {
-            builder.setClassPath(classPath);
-        }
+        Builder builder = new Builder(context, classPath, this);
         return builder;
     }
 
@@ -283,7 +264,7 @@ public class QuickFragmentHelper implements NavigationInterface {
     //返回根fragment
     public void backToRoot() {
         if (fragmentManager != null && fragmentManager.getBackStackEntryCount() > 1) {
-            QDLogger.e("getBackStackEntryCount="+fragmentManager.getBackStackEntryCount()+",fragments="+getFragments().size());
+            QDLogger.e("getBackStackEntryCount="+fragmentManager.getBackStackEntryCount()+",fragments="+fragmentManager.getFragments().size());
             FragmentManager.BackStackEntry firstStackEntry = fragmentManager.getBackStackEntryAt(0);
             /*popBackStack(String tag,int flags)
             tag可以为null或者相对应的tag，flags只有0和1(POP_BACK_STACK_INCLUSIVE)两种情况

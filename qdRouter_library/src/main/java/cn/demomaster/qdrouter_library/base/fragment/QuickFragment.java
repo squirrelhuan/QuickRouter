@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.EventBus;
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
+import cn.demomaster.qdrouter_library.base.OnReleaseListener;
 import cn.demomaster.qdrouter_library.base.activity.QuickActivity;
 import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
@@ -84,6 +85,27 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     public String getTitle() {
         return mTitle;
     }
+    ImageTextView itv_action_right;
+    public static class MyOnClickListener implements View.OnClickListener, OnReleaseListener {
+        QuickFragment fragment;
+
+        public MyOnClickListener(QuickFragment fragment) {
+            this.fragment = fragment;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(fragment!=null) {
+                fragment.onClickBack();
+            }
+        }
+
+        @Override
+        public void onRelease(Object self) {
+            this.fragment = null;
+        }
+    }
+    MyOnClickListener myOnClickListener;
 
     @Nullable
     @Override
@@ -100,9 +122,12 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
             //生成最終的view
             fragmentView = getActionBarTool().inflateView();
             getActionBarTool().setTitle(getTitle());
-            ImageTextView imageTextView = getActionBarTool().getLeftView();
-            if (imageTextView != null) {
-                imageTextView.setOnClickListener(v -> onClickBack());
+            itv_action_right = getActionBarTool().getLeftView();
+            if (itv_action_right != null) {
+                if(myOnClickListener==null){
+                    myOnClickListener = new MyOnClickListener(this);
+                }
+                itv_action_right.setOnClickListener(myOnClickListener);
             }
             setThemeColor();
         } else {
@@ -188,18 +213,18 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         }
         return actionBarTool;
     }
+/*
 
     QuickFragmentHelper mFragmentHelper;
-
     public void setFragmentHelper(QuickFragmentHelper fragmentHelper) {
         mFragmentHelper = fragmentHelper;
     }
-
+*/
     public QuickFragmentHelper getFragmentHelper() {
-        if (mFragmentHelper == null&&getActivity()!=null&&getActivity() instanceof QuickActivity) {
-            mFragmentHelper = ((QuickActivity)getActivity()).getFragmentHelper();
-        }
-        return mFragmentHelper;
+       // if (mFragmentHelper == null&&getActivity()!=null&&getActivity() instanceof QuickActivity) {
+            return ((QuickActivity)getActivity()).getFragmentHelper();
+       // }
+       // return mFragmentHelper;
     }
 
     public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
