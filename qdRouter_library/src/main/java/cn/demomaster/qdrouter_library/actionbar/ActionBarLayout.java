@@ -13,10 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import cn.demomaster.qdrouter_library.R;
-import cn.demomaster.qdrouter_library.view.ImageTextView;
-
-public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
+public class ActionBarLayout extends FrameLayout {
 
     public ActionBarLayout(@NonNull Context context) {
         super(context);
@@ -347,14 +344,6 @@ public class ActionBarLayout extends FrameLayout implements ActionBarInterface {
        /* if(hasRequestLayout){
             requestLayout();
         }*/
-    }
-
-    @Override
-    public void setTitle(CharSequence string) {
-        ImageTextView imageTextView = findViewById(R.id.it_actionbar_common_title);
-        if (imageTextView != null) {
-            imageTextView.setText((String) string);
-        }
     }
 
     public enum PaddingWith {

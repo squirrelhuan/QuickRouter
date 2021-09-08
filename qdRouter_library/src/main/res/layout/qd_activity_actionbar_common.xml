@@ -6,14 +6,15 @@
     android:layout_height="wrap_content"
     style="@style/quick_actionbar_common">
 
-    <cn.demomaster.qdrouter_library.view.ImageTextView
+   <cn.demomaster.qdrouter_library.view.ImageTextView
         android:id="@+id/it_actionbar_common_left"
         style="@style/quick_actionbar_common_weight"
         android:layout_width="@dimen/activity_actionbar_button_width"
         android:layout_height="match_parent"
         android:minWidth="@dimen/activity_actionbar_button_width"
         android:padding="6dp"
-        android:textSize="@dimen/quickdev_title_text_size"
+        app:qd_textSize="@dimen/quickdev_title_text_size"
+        app:qd_textColor="@color/withe"
         android:gravity="center_vertical"
         app:srcCompat="@drawable/ic_arrow_back_black_24dp"
         tools:ignore="VectorDrawableCompat" />
@@ -28,8 +29,8 @@
         android:gravity="center"
         android:layout_gravity="center"
         android:singleLine="true"
-        android:text=""
-        android:textSize="@dimen/quickdev_title_text_size"
+        app:qd_textSize="@dimen/quickdev_title_text_size"
+        app:qd_textColor="@color/withe"
         android:textStyle="bold" />
 
     <cn.demomaster.qdrouter_library.view.ImageTextView
@@ -40,8 +41,9 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_gravity="right"
         android:padding="6dp"
-        android:textSize="@dimen/quickdev_title_text_size"
         android:gravity="center_vertical"
+        app:qd_textSize="@dimen/quickdev_title_text_size"
+        app:qd_textColor="@color/withe"
         app:srcCompat="@drawable/ic_more_vert_black_24dp"
         tools:ignore="VectorDrawableCompat" />
 

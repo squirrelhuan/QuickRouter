@@ -2,6 +2,7 @@ package cn.demomaster.qdrouter_library.base.fragment;
 
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.KeyEvent;
@@ -21,10 +22,8 @@ import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
 import cn.demomaster.qdrouter_library.base.OnReleaseListener;
 import cn.demomaster.qdrouter_library.base.activity.QuickActivity;
-import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.qdrouter_library.manager.QuickRleaser;
-import cn.demomaster.qdrouter_library.view.ImageTextView;
 
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.ACTION_UP;
@@ -78,14 +77,14 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     public void setTitle(String title) {
         this.mTitle = title;
         if (getActionBarTool() != null) {
-            getActionBarTool().setTitle(getTitle());
+            getActionBarTool().setTitle(title);
         }
     }
 
     public String getTitle() {
         return mTitle;
     }
-    ImageTextView itv_action_right;
+    View itv_action_right;
     public static class MyOnClickListener implements View.OnClickListener, OnReleaseListener {
         QuickFragment fragment;
 
@@ -183,7 +182,9 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         if(getActivity()==null){
             return;
         }
-        getActivity().dispatchKeyEvent(down);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getActivity().dispatchKeyEvent(down);
+        }
         if(getActivity()==null){
             return;
         }
@@ -191,7 +192,9 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         KeyEvent up = new KeyEvent(now, now, ACTION_UP, eventCode, 0);
         up.setSource(257);
         up = KeyEvent.changeFlags(down,520);
-        getActivity().dispatchKeyEvent(up);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getActivity().dispatchKeyEvent(up);
+        }
         //getActivity().onKeyUp(eventCode, up);
     }
 

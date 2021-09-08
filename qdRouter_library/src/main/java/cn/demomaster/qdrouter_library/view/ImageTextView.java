@@ -1,17 +1,19 @@
 package cn.demomaster.qdrouter_library.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.widget.ImageView;
 
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import cn.demomaster.qdrouter_library.util.AttributeHelper;
-import cn.demomaster.qdrouter_library.util.DisplayUtil;
+import cn.demomaster.qdrouter_library.R;
 
 
 /**
@@ -35,7 +37,7 @@ public class ImageTextView extends AppCompatImageView {
         init(context, attrs);
     }
 
-    public int textColor = -1;
+    public int textColor = Color.BLACK;
     public int textSize = -1;
 
     public void setTextColor(int textColor) {
@@ -44,52 +46,18 @@ public class ImageTextView extends AppCompatImageView {
     }
 
     public void setTextSize(int textSize) {
-        this.textSize = DisplayUtil.sp2px(getContext(), textSize);
         requestLayout();
         postInvalidate();
     }
 
-    AttributeHelper attributeHelper;
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            attributeHelper = new AttributeHelper(context, attrs);
-            //attributeHelper.hasAttr("textSize")
-
-          /*  int count = attrs.getAttributeCount();
-            for (int i = 0; i < count; i++) {
-                String attrName = attrs.getAttributeName(i);
-                String attrVal = attrs.getAttributeValue(i);
-                if (attrName.equals("textColor")) {
-                    int colorId = attrs.getAttributeResourceValue(i, -1);
-                    if (colorId != -1) {
-                        textColor = getResources().getColor(colorId);
-                    }
-                }
-                Log.e(TAG, "attrName = " + attrName + " , attrVal = " + attrVal);
-            }*/
-            if (textColor == -1 && attributeHelper.hasAttr("textColor")) {
-                String colorArr = attributeHelper.getValue("textColor");
-                if (colorArr.startsWith("@")) {
-                    int colorId = Integer.valueOf(colorArr.replace("@", ""));
-                    textColor = getResources().getColor(colorId);
-                } else {
-                    textColor = Color.parseColor(colorArr);
-                    //Log.e(TAG, "colorArr ===================================== " + textColor);
-                }
-            }
-
-            if (textSize == -1 && attributeHelper.hasAttr("textSize")) {
-                String textSizeArr = attributeHelper.getValue("textSize");
-                if (textSizeArr.startsWith("@")) {
-                    int textSizeId = Integer.valueOf(textSizeArr.replace("@", ""));
-                    textSize = getResources().getDimensionPixelOffset(textSizeId);
-                } else {
-                    textSize = (int) DisplayUtil.getDimension(context, textSizeArr);
-                    // Log.e(TAG, "textSizeId1 ===================================== " + textSize);
-                }
-            }
+            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.QDTextView);
+            textColor = typedArray.getColor(R.styleable.QDTextView_qd_textColor, textColor);
+            textSize = typedArray.getDimensionPixelSize(R.styleable.QDTextView_qd_textSize, context.getResources().getDimensionPixelSize(R.dimen.quickdev_title_text_size));
+            text=typedArray.getString(R.styleable.QDTextView_qd_text);
+            typedArray.recycle();
         }
-        attributeHelper = null;
     }
 
     private float textWidth;
@@ -115,7 +83,7 @@ public class ImageTextView extends AppCompatImageView {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
-
+    
     @Override
     protected int getSuggestedMinimumWidth() {
         return (int) textWidth;//super.getSuggestedMinimumWidth();
@@ -258,4 +226,8 @@ public class ImageTextView extends AppCompatImageView {
     }
 
     private int showType;
+
+    public void asTextView() {
+
+    }
 }

@@ -16,8 +16,9 @@ import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.util.DisplayUtil;
 import cn.demomaster.qdrouter_library.view.ImageTextView;
 
-public class ActionBarTool implements ActionBarLayoutInterface {
+public class ActionBarTool {
     final Activity activity;
+
     public ActionBarTool(Activity activity) {
         this.activity = activity;
         init();
@@ -27,7 +28,9 @@ public class ActionBarTool implements ActionBarLayoutInterface {
         this.activity = fragment.getActivity();
         init();
     }
+
     ActionBarLayout.Builder builder;
+
     private void init() {
         builder = new ActionBarLayout.Builder(activity);
         int statusHeight = DisplayUtil.getStatusBarHeight(activity);
@@ -37,6 +40,7 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     //View mActionView;
     //View mContentView;
     ActionBarLayout actionBarLayout;
+
     public ActionBarLayout getActionBarLayout() {
         return actionBarLayout;
     }
@@ -65,10 +69,11 @@ public class ActionBarTool implements ActionBarLayoutInterface {
         builder.setActionBarView(actionView);
     }
 
-   // ACTIONBAR_TYPE actionbarType = NORMAL;
+    // ACTIONBAR_TYPE actionbarType = NORMAL;
 
     /**
      * 设置导航栏样式
+     *
      * @param actionbarType
      */
     public void setActionBarType(ACTIONBAR_TYPE actionbarType) {
@@ -118,46 +123,16 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     }
 
     public View inflateView() {
-            actionBarLayout = builder
-                    .setContentViewPaddingTop(actionBarPaddingTop)
-                    .setMixStatusActionBar(mixStatusActionBar)
-                    .creat();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                actionBarLayout.setId(View.generateViewId());
-            }
+        actionBarLayout = builder
+                .setContentViewPaddingTop(actionBarPaddingTop)
+                .setMixStatusActionBar(mixStatusActionBar)
+                .creat();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            actionBarLayout.setId(View.generateViewId());
+        }
         return actionBarLayout;
     }
 
-    @Override
-    public ImageTextView getRightView() {
-        if (actionBarLayout != null) {
-            return actionBarLayout.findViewById(R.id.it_actionbar_common_right);
-        }
-        return null;
-    }
-
-    public ImageTextView getTitleView() {
-        return actionBarLayout.findViewById(R.id.it_actionbar_common_title);
-    }
-
-   /* public void setHeaderBackgroundColor(int color) {
-        if (actionBarLayout.getActionBarView() != null) {
-            actionBarLayout.getActionBarView().setBackgroundColor(color);
-        }
-    }
-*/
-    @Override
-    public void setTitle(CharSequence string) {
-        if (actionBarLayout != null) {
-            actionBarLayout.setTitle(string);
-        }
-    }
-
-    @Override
-    public void setLeftOnClickListener(View.OnClickListener onClickListener) {
-        if (getLeftView() != null)
-            getLeftView().setOnClickListener(onClickListener);
-    }
 
     boolean isLightModle = false;//亮色
 
@@ -174,7 +149,6 @@ public class ActionBarTool implements ActionBarLayoutInterface {
     public int textLightColor = Color.WHITE;
     public int textDarkColor = Color.BLACK;
 
-    @Override
     public void setActionBarThemeColors(int lightColor, int darkColor) {
         textLightColor = lightColor;
         textDarkColor = darkColor;
@@ -206,9 +180,10 @@ public class ActionBarTool implements ActionBarLayoutInterface {
                         }
                     }
                 }
-                if (viewGroup.getChildAt(i) instanceof ImageTextView) {
+               if (viewGroup.getChildAt(i) instanceof ImageTextView) {
                     ((ImageTextView) viewGroup.getChildAt(i)).setTextColor(color);
-                } else if (viewGroup.getChildAt(i) instanceof ViewGroup) {
+                } else
+                if (viewGroup.getChildAt(i) instanceof ViewGroup) {
                     resetTextColor(viewGroup.getChildAt(i));
                 } else if (viewGroup.getChildAt(i) instanceof TextView) {
                     ((TextView) viewGroup.getChildAt(i)).setTextColor(color);
@@ -217,27 +192,60 @@ public class ActionBarTool implements ActionBarLayoutInterface {
         }
     }
 
-    @Override
-    public void setRightOnClickListener(View.OnClickListener onClickListener) {
-        getRightView().setOnClickListener(onClickListener);
-    }
-
     public View getActionBarTool() {
         return actionBarLayout.getActionBarView();
-    }
-
-    public ActionBarTip getActionBarTip() {
-        return null;
     }
 
     public void setActionBarTipType(ACTIONBARTIP_TYPE actionbartip_type) {
     }
 
+
+    public ImageTextView getRightView() {
+        if (actionBarLayout != null) {
+            return actionBarLayout.findViewById(R.id.it_actionbar_common_right);
+        }
+        return null;
+    }
+    public void setRightOnClickListener(View.OnClickListener onClickListener) {
+        if(getRightView()!=null) {
+            getRightView().setOnClickListener(onClickListener);
+        }
+    }
+    public ImageTextView getTitleView() {
+        if (actionBarLayout != null) {
+            return actionBarLayout.findViewById(R.id.it_actionbar_common_title);
+        }
+        return null;
+    }
+
+    public void setHeaderBackgroundColor(int color) {
+        if (actionBarLayout!=null&&actionBarLayout.getActionBarView() != null) {
+            actionBarLayout.getActionBarView().setBackgroundColor(color);
+        }
+    }
+
+    public void setTitle(CharSequence string) {
+        if (actionBarLayout != null&&actionBarLayout.findViewById(R.id.it_actionbar_common_title)!=null) {
+            if(string!=null) {
+                ((ImageTextView) actionBarLayout.findViewById(R.id.it_actionbar_common_title)).setText(string.toString());
+            }
+        }
+    }
     public ImageTextView getLeftView() {
         if (actionBarLayout != null) {
             return actionBarLayout.findViewById(R.id.it_actionbar_common_left);
         }
         return null;
+    }
+    /*@Override
+    public void setStateBarColorAuto(boolean b) {
+
+    }*/
+
+    public void setLeftOnClickListener(View.OnClickListener onClickListener) {
+        if (actionBarLayout.findViewById(R.id.it_actionbar_common_left) != null) {
+            actionBarLayout.findViewById(R.id.it_actionbar_common_left).setOnClickListener(onClickListener);
+        }
     }
 
 }

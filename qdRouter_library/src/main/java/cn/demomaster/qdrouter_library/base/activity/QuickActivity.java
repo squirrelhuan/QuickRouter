@@ -19,7 +19,6 @@ import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
-import cn.demomaster.qdrouter_library.manager.QDActivityManager;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.qdrouter_library.manager.QuickRleaser;
 import cn.demomaster.qdrouter_library.util.StatusBarUtil;
@@ -98,10 +97,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
             getActionBarTool().setContentView(view);
             getActionBarTool().setActionView(getHeaderlayout());
             View view1 = getActionBarTool().inflateView();
-            ImageTextView imageTextView = getActionBarTool().getLeftView();
-            if (imageTextView != null) {
-                imageTextView.setOnClickListener(v -> finish());
-            }
+            getActionBarTool().setLeftOnClickListener(v -> finish());
             return view1;
         } else {
             return view;
