@@ -25,7 +25,8 @@
     <attr name="qd_textSize" format="dimension" />
 
     <attr name="QDButtonStyle" format="reference" />
-    <declare-styleable name="QDButton" >
+    <attr name="QDTextViewStyle" format="reference" />
+    <declare-styleable name="QDButton" parent="QDTextView">
         <attr name="qd_backgroundColor" />
         <attr name="qd_borderColor" />
         <attr name="qd_borderWidth" />
@@ -52,7 +53,6 @@
         <attr name="qd_textColor" />
         <attr name="qd_textSize" />
         <attr name="qd_text" />
-        textSize
     </declare-styleable>
 
 

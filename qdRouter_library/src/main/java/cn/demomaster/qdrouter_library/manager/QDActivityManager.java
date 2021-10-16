@@ -1,34 +1,24 @@
 package cn.demomaster.qdrouter_library.manager;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
-import android.view.View;
-import android.view.animation.Animation;
-import android.widget.PopupWindow;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
 import cn.demomaster.qdlogger_library.QDLogger;
-import cn.demomaster.qdrouter_library.base.OnReleaseListener;
-import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleRecorder;
 import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleType;
 
 import static android.content.Context.ACTIVITY_SERVICE;
@@ -43,6 +33,7 @@ public class QDActivityManager {
     private Context context;
     //本地activity栈
     private static Stack<Activity> activityStack;
+
     private QDActivityManager() {
     }
 
@@ -50,6 +41,20 @@ public class QDActivityManager {
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            ActivityManager activityManager = (ActivityManager) activity.getSystemService(ACTIVITY_SERVICE);
+            //最大分配内存
+            int memory = activityManager.getMemoryClass();
+            System.out.println("memory: " + memory);
+            //最大分配内存获取方法2
+            float maxMemory = (float) (Runtime.getRuntime().maxMemory() * 1.0 / (1024 * 1024));
+            //当前分配的总内存
+            float totalMemory = (float) (Runtime.getRuntime().totalMemory() * 1.0 / (1024 * 1024));
+            //剩余内存
+            float freeMemory = (float) (Runtime.getRuntime().freeMemory() * 1.0 / (1024 * 1024));
+            System.out.println("maxMemory: " + maxMemory);
+            System.out.println("totalMemory: " + totalMemory);
+            System.out.println("freeMemory: " + freeMemory);
+
             QDActivityManager.getInstance().pushActivity(activity);
             record(LifecycleType.onActivityCreated, activity);
         }
@@ -90,19 +95,9 @@ public class QDActivityManager {
 
         private void record(LifecycleType lifecycleType, Activity activity) {
             QDLogger.println(lifecycleType + "(" + activity + ")");
-            LifecycleRecorder.record(lifecycleType, activity);
+            //LifecycleRecorder.record(lifecycleType, activity);
         }
     };
-
-    /**
-     * 页面关闭
-     * 释放一些资源
-     *
-     * @param obj
-     */
-  /*  public static void destroyObject(Object obj) {
-        QuickRleaser.release(obj);
-    }*/
 
     //必须要在application里初始化
     @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -140,29 +135,6 @@ public class QDActivityManager {
     }
 
     /**
-     * 返回上一个 activity
-     */
-   /* public void popActivity() {
-        if (activityStack == null) {
-            activityStack = new Stack<>();
-            return;
-        }
-
-        if (activityStack.isEmpty()) {
-            return;
-        }
-
-        QDLogger.e("QDACTIVITY_","准备出栈："+getCurrentActivity().getClass().getName());
-        Activity activity = activityStack.pop();
-        QDLogger.e("QDACTIVITY_","出栈 ："+activity.getClass().getName());
-        if (activity != null) {
-            if (!activity.isFinishing()) {
-                activity.finish();
-            }
-        }
-    }*/
-
-    /**
      * 把指定activity从栈中移除，并销毁该页面
      *
      * @param activity 要移除的activity
@@ -191,23 +163,6 @@ public class QDActivityManager {
 
         if (activity != null) {
             activityStack.remove(activity);
-        }
-    }
-
-    /**
-     * 弹出其他所有activity，仅保留指定activity
-     *
-     * @param targetActivity 要保留的activity类
-     */
-    public void popOtherActivityExceptOne(Class targetActivity) {
-        int c = activityStack.size();
-        for (int i = 0; i < c; i++) {
-            Activity activity = activityStack.get(i);
-            if (activity != null && !activity.getClass().equals(targetActivity)) {
-                popActivity(activity);
-                popOtherActivityExceptOne(targetActivity);
-                return;
-            }
         }
     }
 
@@ -241,6 +196,17 @@ public class QDActivityManager {
     }
 
     /**
+     * 弹出其他所有activity，仅保留指定activity
+     *
+     * @param targetActivity 要保留的activity类
+     */
+    public void popOtherActivityExcept(Class targetActivity) {
+        List<Class> classList = new ArrayList<>();
+        classList.add(targetActivity);
+        popOtherActivityExceptList(classList);
+    }
+
+    /**
      * 弹出其他栈，仅保留某class集合内的activity
      *
      * @param classList 要保留的 activity 类
@@ -258,152 +224,6 @@ public class QDActivityManager {
         }
     }
 
-    //删除具体的activity
-    /*public void removeActivity(Activity activity) {
-        if (activity != null) {
-            QDLogger.d("QDActivityManager", "removeActivity:" + activity);
-            if (currentActivity == activity) {
-                currentActivity = null;
-            }
-            activitys.remove(activity + "");
-        }
-    }*/
-
-    //删除clazz类的activity
-    /*public void deleteActivityByClass(Class clazz) {
-        if (clazz != null) {
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activity != null && activity.getClass().equals(clazz)) {
-                    activitys.remove(entry.getKey());
-                    activity.finish();
-                    deleteActivityByClass(clazz);
-                    return;
-                }
-                activitys.remove(entry.getKey() + "");
-                deleteActivityByClass(clazz);
-                return;
-            }
-        }
-    }*/
-
-    //删除clazzes类的activity
-    /*public void deleteActivityByClasses(List<Class> clazz) {
-        if (clazz != null) {
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activity != null && clazz.contains(activity.getClass())) {
-                    activitys.remove(entry.getKey() + "");
-                    activity.finish();
-                    deleteActivityByClasses(clazz);
-                    return;
-                }
-                if (activity == null) {
-                    activitys.remove(entry.getKey() + "");
-                    deleteActivityByClasses(clazz);
-                    return;
-                }
-            }
-        }
-    }*/
-
-    /*public void deleteAllActivity() {
-        for (Map.Entry entry : activitys.entrySet()) {
-            Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-            activitys.remove(entry.getKey() + "");
-            if (activity != null) {
-                activity.finish();
-            }
-            deleteAllActivity();
-            return;
-        }
-    }*/
-
-    /**
-     * 关闭除了a,b,c类，之外的所有activity
-     */
-    /*public void deleteOtherActivityByClasses(List<Class> clazz) {
-        if (clazz != null) {
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activity != null && !clazz.contains(activity.getClass())) {
-                    activitys.remove(entry.getKey() + "");
-                    activity.finish();
-                    deleteOtherActivityByClasses(clazz);
-                    return;
-                } else if (activity == null) {
-                    activitys.remove(entry.getKey() + "");
-                    deleteOtherActivityByClasses(clazz);
-                    return;
-                }
-            }
-        }
-    }*/
-
-    /**
-     * 关闭除了a list类，之外的所有activity
-     */
-    /*public void deleteOtherActivityByClass(List<Class> clazzs) {
-        if (clazzs != null) {
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activity != null && !clazzs.contains(activity.getClass())) {
-                    activitys.remove(entry.getKey() + "");
-                    activity.finish();
-                    deleteOtherActivityByClass(clazzs);
-                    return;
-                } else if (activity == null) {
-                    activitys.remove(entry.getKey() + "");
-                    deleteOtherActivityByClass(clazzs);
-                    return;
-                }
-            }
-        }
-    }*/
-
-    /**
-     * 关闭除了a类，之外的所有activity
-     */
-    /*public void deleteOtherActivityByClass(Class clazz) {
-        if (clazz != null) {
-            // android.app.QDActivityManager mActivityManager = (android.app.QDActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activity = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activity != null && !activity.getClass().equals(clazz)) {
-                    activitys.remove(entry.getKey());
-                    activity.finish();
-                    //QDLogger.d("移除"+activity.getClass().getName());
-                    deleteOtherActivityByClass(clazz);
-                    return;
-                } else if (activity == null) {
-                    activitys.remove(entry.getKey());
-                    deleteOtherActivityByClass(clazz);
-                    return;
-                }
-            }
-        }
-    }*/
-
-    /**
-     * 关闭除了a之外的所有activity
-     */
-    /*public void deleteOtherActivity(Activity activity) {
-        if (activity != null) {
-            for (Map.Entry entry : activitys.entrySet()) {
-                Activity activityT = ((WeakReference<Activity>) entry.getValue()).get();
-                if (activityT != null && !activity.equals(activityT)) {
-                    activitys.remove(entry.getKey() + "");
-                    activityT.finish();
-                    deleteOtherActivity(activity);
-                    return;
-                } else if (activityT == null) {
-                    activitys.remove(entry.getKey() + "");
-                    deleteOtherActivity(activity);
-                    return;
-                }
-            }
-        }
-    }*/
     public void onActivityResumed(Activity activity) {
         onStateChanged(activity, true);
     }
@@ -484,7 +304,7 @@ public class QDActivityManager {
         String processName = context.getApplicationInfo().processName;
         for (ActivityManager.RunningAppProcessInfo processInfo : appProcessInfoList) {
             QDLogger.println("" + processInfo.processName + "," + processInfo.importance);
-            return  (processInfo.processName.equals(processName) && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND);
+            return (processInfo.processName.equals(processName) && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND);
         }
         return false;
     }
@@ -562,23 +382,18 @@ public class QDActivityManager {
         void onBackground();//后台显示
     }
 
-    private static ActivityManager manager;
-    private static List<ActivityManager.RunningAppProcessInfo> runningProcesses;
-    private static String packName;
-    private static PackageManager pManager;
-
     /**
      * 杀死其他正在运行的程序
      *
      * @param context
      */
     public static void killOthers(Context context, String pkgName) {
-        pManager = context.getPackageManager();
-        manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
-        runningProcesses = manager.getRunningAppProcesses();
+        PackageManager pManager = context.getPackageManager();
+        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = manager.getRunningAppProcesses();
         for (ActivityManager.RunningAppProcessInfo runningProcess : runningProcesses) {
             try {
-                packName = runningProcess.processName;
+                String packName = runningProcess.processName;
                 PackageInfo packageInfo = pManager.getPackageInfo(packName, 0);
                 if (packageInfo != null) {
                     ApplicationInfo applicationInfo = pManager.getPackageInfo(packName, 0).applicationInfo;
@@ -631,7 +446,7 @@ public class QDActivityManager {
      * @return
      */
     public static boolean filterApp(ApplicationInfo info) {
-        return ((info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0)||((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0);
+        return ((info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) || ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0);
     }
 
     /**
@@ -690,6 +505,24 @@ public class QDActivityManager {
     }
 
     /**
+     * 判断是否有activity在栈
+     *
+     * @param context
+     * @param packageName
+     */
+    public static boolean hasActivity(Context context, String packageName) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfoList = activityManager.getRunningTasks(100);
+        for (ActivityManager.RunningTaskInfo taskInfo : taskInfoList) {
+            //找到本应用的 task，并将它切换到前台
+            if (taskInfo.topActivity.getPackageName().equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 返回到app，如果当前app在前台不会需要执行
      *
      * @param context
@@ -726,6 +559,7 @@ public class QDActivityManager {
 
     /**
      * 获取当前的 activity
+     *
      * @return act
      */
     public Activity getCurrentActivity() {

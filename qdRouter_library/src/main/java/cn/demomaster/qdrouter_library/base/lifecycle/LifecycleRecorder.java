@@ -16,7 +16,6 @@ public class LifecycleRecorder {
     }
 
     static boolean isRecord;
-
     public static void startRecord(Activity activity) {
         isRecord = true;
         //QDFileUtil.writeFileSdcardFile(activity.getFilesDir().getAbsolutePath() + "/LifecycleRecorder.txt", "", false);

@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
-
 /**
  * @author squirrel桓
  * @date 2018/12/7.

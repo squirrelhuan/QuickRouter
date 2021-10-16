@@ -1,7 +1,8 @@
-<manifest package="cn.demomaster.qdrouter_library">
+<manifest package="cn.demomaster.qdrouter_library"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 <!--
     <application android:theme="@style/QuickAppTheme"
         tools:replace="android:theme">
-
     </application>-->
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
 </manifest>

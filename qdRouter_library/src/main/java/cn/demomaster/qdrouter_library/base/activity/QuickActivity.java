@@ -17,17 +17,20 @@ import java.lang.ref.WeakReference;
 
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
+import cn.demomaster.qdrouter_library.actionbar.ActionBarLayout;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
+import cn.demomaster.qdrouter_library.actionbar.ActionBarToolImp;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.qdrouter_library.manager.QuickRleaser;
+import cn.demomaster.qdrouter_library.util.DisplayUtil;
+import cn.demomaster.qdrouter_library.util.QdThreadHelper;
 import cn.demomaster.qdrouter_library.util.StatusBarUtil;
-import cn.demomaster.qdrouter_library.view.ImageTextView;
 
 public class QuickActivity extends AppCompatActivity implements QDActivityInterface {
     public static String TAG = QuickActivity.class.getName();
     public QuickActivity mContext;
-
+    
     @Override
     public void onClickBack() {
         finish();
@@ -37,25 +40,29 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     public boolean isUseActionBarLayout() {
         return true;
     }
-
+    
     @Override
     public boolean isTransparencyBar() {
         return true;
     }
-
+    
+    /**
+     * 设置自定义导航栏
+     * @return
+     */
     public View getHeaderlayout() {
         return View.inflate(this,R.layout.qd_activity_actionbar_common,null);
     }
-
+    
     private ActionBarTool actionBarTool;
     //获取自定义导航
     public ActionBarTool getActionBarTool() {
-        if (actionBarTool == null) {
-            actionBarTool = new ActionBarTool(this);
+        if (actionBarTool == null&&mActionBarLayout!=null) {
+            actionBarTool = new ActionBarToolImp(this,mActionBarLayout);
         }
         return actionBarTool;
     }
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mContext = this;
@@ -72,7 +79,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         }*/
         //setSupportActionBar(new QuickToolbar(this));
     }
-
+    
     @Override
     public void setContentView(int layoutResID) {
         View view = getLayoutInflater().inflate(layoutResID, null);
@@ -87,6 +94,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         initContentView();
     }
 
+    ActionBarLayout mActionBarLayout;
     /**
      * 对传递过来的view 再次包装
      * @param view
@@ -94,20 +102,39 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
      */
     public View decorateView(View view) {
         if (isUseActionBarLayout()) {//是否使用自定义导航栏
-            getActionBarTool().setContentView(view);
-            getActionBarTool().setActionView(getHeaderlayout());
-            View view1 = getActionBarTool().inflateView();
+            ActionBarLayout.Builder builder = getActivityLayoutBuilder(mContext);
+            mActionBarLayout = builder
+                    .setContentView(view)
+                    .creat();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                mActionBarLayout.setId(View.generateViewId());
+            }
             getActionBarTool().setLeftOnClickListener(v -> finish());
-            return view1;
+            return mActionBarLayout;
         } else {
             return view;
         }
     }
 
-    public void initContentView() {
-
+    /**
+     * 自定义导航构建者
+     * @param mContext
+     * @return
+     */
+    public ActionBarLayout.Builder getActivityLayoutBuilder(QuickActivity mContext) {
+        ActionBarLayout.Builder builder = new ActionBarLayout.Builder(mContext)
+                .setActionBarView(getHeaderlayout())
+                .setHasStatusBar(true)
+                .setStatusHeight(DisplayUtil.getStatusBarHeight(mContext))
+                .setContentViewPaddingTop(ActionBarLayout.PaddingWith.none)
+                .setMixStatusActionBar(true);
+        return builder;
     }
 
+    public void initContentView() {
+        
+    }
+    
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -147,18 +174,35 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
 
     @Override
     public void finish() {
-        QuickRleaser.release(this);
+        //QDLogger.e("isMainThread:"+QdThreadHelper.isMainThread());
+        //QuickRleaser.release(this);
         super.finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(actionBarTool!=null){
+            actionBarTool.onRelease(this);
+        }
         QDLogger.i("onDestroy-"+getClass().getSimpleName()+"-"+hashCode());
         if(EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
     }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        QDLogger.e("onLowMemory-" +getClass().getSimpleName()+"-"+hashCode());
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        QDLogger.e("onTrimMemory- level:"+level +getClass().getSimpleName()+"-"+hashCode());
+    }
+
     public int getContentViewId() {
         //QDLogger.e("getDelegate()"+getDelegate()+",android.R.id.content="+android.R.id.content);
         return android.R.id.content;//R.id.qd_fragment_content_view;
@@ -172,7 +216,11 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     }
 
     public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
-        getFragmentHelper().navigate(mContext,fragment, parentId,intent);
+        //getFragmentHelper().navigate(mContext,fragment, parentId,intent);
+        
+        QuickFragmentHelper.Builder builder = new QuickFragmentHelper.Builder(mContext,fragment,getFragmentHelper());
+        builder.setIntent(intent);
+        builder.navigation();
     }
 
     public void startActivity(Class<?> clazz) {

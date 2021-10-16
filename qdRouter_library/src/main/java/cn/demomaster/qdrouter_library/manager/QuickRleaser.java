@@ -7,12 +7,12 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.PopupWindow;
-import android.widget.TextView;
+import android.widget.RadioGroup;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.base.OnReleaseListener;
@@ -39,9 +39,10 @@ public class QuickRleaser {
                 // 对于每个属性，获取属性名
                 //String varName = field.getName();
                 //QDLogger.e(obj+".属性：" + varName);
+
+                // 获取原来的访问控制权限
+                boolean accessFlag = field.isAccessible();
                 try {
-                    // 获取原来的访问控制权限
-                    boolean accessFlag = field.isAccessible();
                     // 修改访问控制权限
                     field.setAccessible(true);
                     // 获取在对象f中属性fields[i]对应的对象中的变量
@@ -71,12 +72,23 @@ public class QuickRleaser {
                         } else if (o instanceof View) {
                             //QDLogger.println("释放View：" + varName);
                             ((View) o).setOnLongClickListener(null);
-                            ((View) o).setOnClickListener(null);
+                            if( o instanceof android.widget.AdapterView){
+                                ((android.widget.AdapterView) o).setOnItemClickListener(null);
+                            }else {
+                                ((View) o).setOnClickListener(null);
+                            }
+
                             ((View) o).setOnTouchListener(null);
                             ((View) o).clearAnimation();
                             if(o instanceof EditText){
                                 ((EditText) o).setCustomSelectionActionModeCallback(null);
                                // ((EditText) o).addTextChangedListener(null);
+                            }
+                            if(o instanceof CheckBox){
+                                ((CheckBox) o).setOnCheckedChangeListener(null);
+                            }
+                            if(o instanceof RadioGroup){
+                                ((RadioGroup) o).setOnCheckedChangeListener(null);
                             }
                         } else if (o instanceof Animator) {
                             //QDLogger.println("释放Animator：" + varName);
@@ -90,10 +102,11 @@ public class QuickRleaser {
                             ((Animation) o).cancel();
                         }
                     }
-                    // 恢复访问控制权限
-                    field.setAccessible(accessFlag);
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
                     QDLogger.e(ex);
+                }finally {
+                    // 恢复访问控制权限
+                    field.setAccessible(accessFlag);
                 }
             }
         }

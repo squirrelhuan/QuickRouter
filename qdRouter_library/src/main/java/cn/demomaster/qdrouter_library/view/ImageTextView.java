@@ -8,9 +8,7 @@ import android.graphics.Paint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.widget.ImageView;
 
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import cn.demomaster.qdrouter_library.R;

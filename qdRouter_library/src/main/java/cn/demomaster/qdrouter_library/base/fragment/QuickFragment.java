@@ -1,5 +1,6 @@
 package cn.demomaster.qdrouter_library.base.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -19,11 +20,13 @@ import org.greenrobot.eventbus.EventBus;
 
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.R;
+import cn.demomaster.qdrouter_library.actionbar.ActionBarLayout;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
-import cn.demomaster.qdrouter_library.base.OnReleaseListener;
+import cn.demomaster.qdrouter_library.actionbar.ActionBarToolImp;
 import cn.demomaster.qdrouter_library.base.activity.QuickActivity;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.qdrouter_library.manager.QuickRleaser;
+import cn.demomaster.qdrouter_library.util.DisplayUtil;
 
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.ACTION_UP;
@@ -32,10 +35,10 @@ import static android.view.KeyEvent.KEYCODE_BACK;
 /**
  * Created by Squirrel桓 on 2019/1/3.
  */
-public abstract class QuickFragment extends Fragment implements ViewLifecycle {
+public abstract class QuickFragment extends Fragment implements ViewLifecycle, View.OnClickListener {
 
     public AppCompatActivity mContext;
-
+    public int containerViewId;
     //是否使用自定义导航
     @Override
     public boolean isUseActionBarLayout() {
@@ -54,16 +57,20 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         QDLogger.i("onCreate$" + hashCode() + "-" + getClass().getSimpleName());
         //StatusBarUtil.transparencyBar(new WeakReference<>(mContext));
     }
-    private View fragmentView;
+
     public <T extends View> T findViewById(int id) {
-        if (fragmentView == null) {
+        if (getView() == null) {
             return null;
         }
-        return fragmentView.findViewById(id);
+        return getView().findViewById(id);
     }
-    //private int headlayoutResID = R.layout.qd_activity_actionbar_common;
-    public int getHeadlayoutResID() {
-        return R.layout.qd_activity_actionbar_common;
+
+    public View getHeaderlayout() {
+        return inflateView(R.layout.qd_activity_actionbar_common);
+    }
+
+    public View inflateView(int layoutId) {
+        return LayoutInflater.from(mContext).inflate(layoutId, null);
     }
 
     //是否可以被点击 false点击穿透
@@ -74,6 +81,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     }
 
     private String mTitle;
+
     public void setTitle(String title) {
         this.mTitle = title;
         if (getActionBarTool() != null) {
@@ -84,8 +92,9 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     public String getTitle() {
         return mTitle;
     }
+
     View itv_action_right;
-    public static class MyOnClickListener implements View.OnClickListener, OnReleaseListener {
+ /*   public static class MyOnClickListener implements View.OnClickListener, OnReleaseListener {
         QuickFragment fragment;
 
         public MyOnClickListener(QuickFragment fragment) {
@@ -94,7 +103,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
 
         @Override
         public void onClick(View v) {
-            if(fragment!=null) {
+            if (fragment != null) {
                 fragment.onClickBack();
             }
         }
@@ -103,8 +112,11 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         public void onRelease(Object self) {
             this.fragment = null;
         }
-    }
-    MyOnClickListener myOnClickListener;
+    }*/
+
+    //public MyOnClickListener action_button_left_onclicklistener;
+
+    View fragmentView;
 
     @Nullable
     @Override
@@ -112,23 +124,17 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         //return super.onCreateView(inflater, container, savedInstanceState);
         View view = onGenerateView(inflater, container, savedInstanceState);
         if (isUseActionBarLayout()) {
-            /*ActionBarTool.Builder builder = new ActionBarTool.Builder(getActivity());
-            fragmentView = builder.setContentView(view)
-                    .setActionView(getHeadlayoutResID())
-                    .inflateView();*/
-            getActionBarTool().setContentView(view);
-            getActionBarTool().setActionView(getHeadlayoutResID());
             //生成最終的view
-            fragmentView = getActionBarTool().inflateView();
+            fragmentView = decorateView(view);
             getActionBarTool().setTitle(getTitle());
-            itv_action_right = getActionBarTool().getLeftView();
-            if (itv_action_right != null) {
-                if(myOnClickListener==null){
-                    myOnClickListener = new MyOnClickListener(this);
-                }
-                itv_action_right.setOnClickListener(myOnClickListener);
+            /*if (action_button_left_onclicklistener == null) {
+                action_button_left_onclicklistener = new MyOnClickListener(this);
+            }*/
+            if (getActionBarTool() != null) {
+                getActionBarTool().setLeftOnClickListener(this);//action_button_left_onclicklistener);
+                itv_action_right = getActionBarTool().getLeftView();
             }
-            setThemeColor();
+            setThemeColor(fragmentView);
         } else {
             fragmentView = view;
         }
@@ -137,14 +143,62 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     }
 
     @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.it_actionbar_common_left) {
+            onClickBack();
+        }
+    }
+
+    @Override
+    public View getView() {
+        if (super.getView() != null) {
+            return super.getView();
+        } else {
+            return fragmentView;
+        }
+    }
+
+    ActionBarLayout mActionBarLayout;
+
+    /**
+     * 对传递过来的view 再次包装
+     *
+     * @param view
+     * @return
+     */
+    public View decorateView(View view) {
+        if (isUseActionBarLayout()) {//是否使用自定义导航栏
+            ActionBarLayout.Builder builder = getActivityLayoutBuilder(mContext);
+            mActionBarLayout = builder
+                    .setContentView(view)
+                    .creat();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                mActionBarLayout.setId(View.generateViewId());
+            }
+            return mActionBarLayout;
+        } else {
+            return view;
+        }
+    }
+
+    private ActionBarLayout.Builder getActivityLayoutBuilder(Activity mContext) {
+        ActionBarLayout.Builder builder = new ActionBarLayout.Builder(mContext)
+                .setActionBarView(getHeaderlayout())
+                .setStatusHeight(DisplayUtil.getStatusBarHeight(mContext))
+                .setContentViewPaddingTop(ActionBarLayout.PaddingWith.none)
+                .setMixStatusActionBar(true);
+        return builder;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        QDLogger.d("onViewCreated");
+        //QDLogger.d("onViewCreated");
         initCreatView(view);
     }
 
-    public void setThemeColor() {
-        if (fragmentView.getBackground() == null) {//设置默认颜色
+    public void setThemeColor(View fragmentView) {
+        if (fragmentView != null && fragmentView.getBackground() == null) {//设置默认颜色
             //QDLogger.e("getBackground="+fragmentView.getBackground());
             //ColorDrawable colorDrawable = (ColorDrawable) fragmentView.getBackground();
             TypedArray array = getContext().getTheme().obtainStyledAttributes(new int[]{
@@ -167,8 +221,8 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         }*/
     }
 
-    public void initCreatView(View mView) {
-        initView(mView);
+    public void initCreatView(View contentView) {
+        initView(contentView);
     }
 
     public void onClickBack() {
@@ -177,23 +231,22 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
         long now = SystemClock.uptimeMillis();
         KeyEvent down = new KeyEvent(now, now, ACTION_DOWN, eventCode, 0);
         down.setSource(257);
-        down = KeyEvent.changeFlags(down,8);
+        down = KeyEvent.changeFlags(down, 8);
 
-        if(getActivity()==null){
+        if (getActivity() == null) {
             return;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getActivity().dispatchKeyEvent(down);
-        }
-        if(getActivity()==null){
-            return;
-        }
-        now = SystemClock.uptimeMillis();
-        KeyEvent up = new KeyEvent(now, now, ACTION_UP, eventCode, 0);
-        up.setSource(257);
-        up = KeyEvent.changeFlags(down,520);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getActivity().dispatchKeyEvent(up);
+            now = SystemClock.uptimeMillis();
+            KeyEvent up = new KeyEvent(now, now, ACTION_UP, eventCode, 0);
+            up.setSource(257);
+            up = KeyEvent.changeFlags(down, 520);
+            if (getActivity() != null) {
+                getActivity().dispatchKeyEvent(up);
+            }
+        } else {
+            getActivity().onBackPressed();
         }
         //getActivity().onKeyUp(eventCode, up);
     }
@@ -208,34 +261,30 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     }
 
     private ActionBarTool actionBarTool;
-
     //获取自定义导航
     public ActionBarTool getActionBarTool() {
-        if (actionBarTool == null) {
-            actionBarTool = new ActionBarTool(this);
+        if (actionBarTool == null && mActionBarLayout != null) {
+            actionBarTool = new ActionBarToolImp(this, mActionBarLayout);
         }
         return actionBarTool;
     }
-/*
 
-    QuickFragmentHelper mFragmentHelper;
-    public void setFragmentHelper(QuickFragmentHelper fragmentHelper) {
-        mFragmentHelper = fragmentHelper;
-    }
-*/
     public QuickFragmentHelper getFragmentHelper() {
-       // if (mFragmentHelper == null&&getActivity()!=null&&getActivity() instanceof QuickActivity) {
-            return ((QuickActivity)getActivity()).getFragmentHelper();
-       // }
-       // return mFragmentHelper;
+        if (getActivity() instanceof QuickActivity) {
+            return ((QuickActivity) getActivity()).getFragmentHelper();
+        }
+        return null;
     }
 
-    public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
-        getFragmentHelper().navigate(mContext,fragment, parentId,intent);
+    public void startFragment(QuickFragment fragment, int parentId, Intent intent) {
+        if (getFragmentHelper() != null) {
+            getFragmentHelper().navigate(mContext, fragment, parentId, intent);
+        }
     }
 
     int mResultCode;
     Intent mResultData;
+
     public void setResult(int resultCode, Intent data) {
         mResultCode = resultCode;
         mResultData = data;
@@ -254,7 +303,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
     @Override
     public void setIntent(Intent intent) {
         mIntent = intent;
-        if(intent!=null) {
+        if (intent != null) {
             setArguments(intent.getExtras());
         }
     }
@@ -341,26 +390,46 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
 
     public void finish() {
         // onClickBack();
-        getFragmentHelper().popBackStack(this);
+        if (getFragmentHelper() != null) {
+            getFragmentHelper().popBackStack(this);
+        } else {
+            if (getFragmentManager() != null) {
+                getFragmentManager().popBackStack();
+            }
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         QDLogger.i("onDetach$" + hashCode() + "-" + getClass().getSimpleName());
-        if (fromFragment != null) {
-            fromFragment.onActivityResult(mRequestCode, mResultCode, mResultData);
-        }
     }
 
     @Override
     public void onDestroyView() {
+        if (actionBarTool != null) {
+            actionBarTool.onRelease(this);
+        }
         super.onDestroyView();
         QDLogger.i("onDestroyView$" + hashCode() + "-" + getClass().getSimpleName());
     }
 
     @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        QDLogger.i("onLowMemory$" + hashCode() + "-" + getClass().getSimpleName());
+    }
+
+    @Override
     public void onDestroy() {
+        if (fromFragment != null) {
+            fromFragment.onActivityResult(mRequestCode, mResultCode, mResultData);
+        }
+        mResultData = null;
+        fromFragment = null;
+       /* if (action_button_left_onclicklistener != null) {
+            action_button_left_onclicklistener.onRelease(this);
+        }*/
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
@@ -374,13 +443,13 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        QDLogger.e(getClass().getName()+"-onKeyDown");
+        QDLogger.e(getClass().getName() + "-onKeyDown");
         if (keyCode == KeyEvent.KEYCODE_BACK) {//默认只处理回退事件
             if (!isRootFragment()) {
                 //getActivity().onBackPressed();
                 finish();
             } else {//已经是根fragment了
-                QDLogger.e(getClass().getName()+"-已经是根fragment了");
+                QDLogger.e(getClass().getName() + "-已经是根fragment了");
             }
             return true;//当返回true时，表示已经完整地处理了这个事件，并不希望其他的回调方法再次进行处理，而当返回false时，表示并没有完全处理完该事件，更希望其他回调方法继续对其进行处理
         } else {//其他事件自行处理
