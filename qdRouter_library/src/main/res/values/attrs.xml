@@ -54,6 +54,9 @@
         <attr name="qd_textSize" />
         <attr name="qd_text" />
     </declare-styleable>
+    <declare-styleable name="QDActionBarLayout">
+        <attr name="android:layout" />
+    </declare-styleable>
 
 
     <!--**********************************************
