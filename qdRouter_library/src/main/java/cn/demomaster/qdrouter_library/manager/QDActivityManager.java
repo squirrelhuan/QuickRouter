@@ -22,6 +22,7 @@ import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleType;
 
 import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * @author squirrel桓
@@ -491,16 +492,30 @@ public class QDActivityManager {
         }
     }
 
-    //当本应用位于后台时，则将它切换到最前端
-    public static void setTopApp(Context context) {
+    /**
+     * 当本应用位于后台时，则将它切换到最前端
+     * @param context
+     * @param activityClass 如果没有activity栈 跳转到指定页面
+     */
+    public static void keepFrontActivity(Context context,Class<? extends Activity> activityClass) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> taskInfoList = activityManager.getRunningTasks(100);
         for (ActivityManager.RunningTaskInfo taskInfo : taskInfoList) {
             //找到本应用的 task，并将它切换到前台
             if (taskInfo.topActivity.getPackageName().equals(context.getPackageName())) {
                 activityManager.moveTaskToFront(taskInfo.id, 0);
-                break;
+                return;
             }
+        }
+        QDLogger.e("未找到任务栈，activityClass="+activityClass);
+        if(activityClass!=null) {
+            Intent intent = new Intent(context,activityClass);
+                if(context instanceof Activity) {
+                    ((Activity) context).startActivity(intent);
+                }else {
+                    intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
         }
     }
 
@@ -519,6 +534,7 @@ public class QDActivityManager {
                 return true;
             }
         }
+        QDLogger.e("未找到栈："+packageName);
         return false;
     }
 
