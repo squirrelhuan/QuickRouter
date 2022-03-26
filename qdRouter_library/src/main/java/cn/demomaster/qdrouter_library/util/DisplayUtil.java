@@ -41,9 +41,6 @@ public class DisplayUtil {
 
         try {
             Class<?> c = Class.forName("com.android.internal.R$dimen");
-            if (c == null) {
-                return 0;
-            }
             Object obj = c.newInstance();
             Field field = c.getField("status_bar_height");
             int x = Integer.parseInt(field.get(obj).toString());

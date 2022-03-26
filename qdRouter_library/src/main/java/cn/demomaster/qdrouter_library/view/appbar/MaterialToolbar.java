@@ -16,6 +16,7 @@
 
 package cn.demomaster.qdrouter_library.view.appbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -80,7 +81,7 @@ public class MaterialToolbar extends Toolbar {
     // Ensure we are using the correctly themed context rather than the context that was passed in.
     context = getContext();
 
-    final TypedArray a =
+    @SuppressLint("RestrictedApi") final TypedArray a =
         ThemeEnforcement.obtainStyledAttributes(
             context, attrs, R.styleable.MaterialToolbar, defStyleAttr, DEF_STYLE_RES);
 

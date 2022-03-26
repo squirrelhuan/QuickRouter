@@ -18,6 +18,7 @@ package cn.demomaster.qdrouter_library.view.appbar;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -218,7 +219,7 @@ public class AppBarLayout extends LinearLayout implements CoordinatorLayout.Atta
           this, attrs, defStyleAttr, DEF_STYLE_RES);
     }
 
-    final TypedArray a =
+    @SuppressLint("RestrictedApi") final TypedArray a =
         ThemeEnforcement.obtainStyledAttributes(
             context,
             attrs,

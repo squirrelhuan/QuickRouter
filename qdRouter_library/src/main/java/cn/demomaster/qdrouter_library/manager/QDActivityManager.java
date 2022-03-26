@@ -13,6 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,70 +39,14 @@ public class QDActivityManager {
     private static Stack<Activity> activityStack;
 
     private QDActivityManager() {
+        activityLifecycleCallbacks = new QuickActivityLifecycleCallbacks();
     }
 
-    Application.ActivityLifecycleCallbacks activityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
-
-        @Override
-        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            ActivityManager activityManager = (ActivityManager) activity.getSystemService(ACTIVITY_SERVICE);
-            //最大分配内存
-            int memory = activityManager.getMemoryClass();
-            System.out.println("memory: " + memory);
-            //最大分配内存获取方法2
-            float maxMemory = (float) (Runtime.getRuntime().maxMemory() * 1.0 / (1024 * 1024));
-            //当前分配的总内存
-            float totalMemory = (float) (Runtime.getRuntime().totalMemory() * 1.0 / (1024 * 1024));
-            //剩余内存
-            float freeMemory = (float) (Runtime.getRuntime().freeMemory() * 1.0 / (1024 * 1024));
-            System.out.println("maxMemory: " + maxMemory);
-            System.out.println("totalMemory: " + totalMemory);
-            System.out.println("freeMemory: " + freeMemory);
-
-            QDActivityManager.getInstance().pushActivity(activity);
-            record(LifecycleType.onActivityCreated, activity);
-        }
-
-        @Override
-        public void onActivityStarted(Activity activity) {
-            record(LifecycleType.onActivityStarted, activity);
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-            QDActivityManager.getInstance().onActivityResumed(activity);
-            record(LifecycleType.onActivityResumed, activity);
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-            QDActivityManager.getInstance().onActivityPaused(activity);
-            record(LifecycleType.onActivityPaused, activity);
-        }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-            QDActivityManager.getInstance().onActivityStopped(activity);
-            record(LifecycleType.onActivityStopped, activity);
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-            record(LifecycleType.onActivitySaveInstanceState, activity);
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
-            QDActivityManager.getInstance().removeActivityFormStack(activity);
-            record(LifecycleType.onActivityDestroyed, activity);
-        }
-
-        private void record(LifecycleType lifecycleType, Activity activity) {
-            QDLogger.println(lifecycleType + "(" + activity + ")");
-            //LifecycleRecorder.record(lifecycleType, activity);
-        }
-    };
-
+    /**
+     * activity 生命周期回调
+     */
+    private Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
+    
     //必须要在application里初始化
     @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public QDActivityManager init(Context context) {

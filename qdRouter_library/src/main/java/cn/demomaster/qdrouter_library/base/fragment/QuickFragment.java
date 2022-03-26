@@ -1,5 +1,6 @@
 package cn.demomaster.qdrouter_library.base.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -94,28 +95,6 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle, V
     }
 
     View itv_action_right;
- /*   public static class MyOnClickListener implements View.OnClickListener, OnReleaseListener {
-        QuickFragment fragment;
-
-        public MyOnClickListener(QuickFragment fragment) {
-            this.fragment = fragment;
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (fragment != null) {
-                fragment.onClickBack();
-            }
-        }
-
-        @Override
-        public void onRelease(Object self) {
-            this.fragment = null;
-        }
-    }*/
-
-    //public MyOnClickListener action_button_left_onclicklistener;
-
     View fragmentView;
 
     @Nullable
@@ -225,6 +204,7 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle, V
         initView(contentView);
     }
 
+    @SuppressLint("RestrictedApi")
     public void onClickBack() {
         //模拟点击
         int eventCode = KEYCODE_BACK;//ACTION_DOWN
@@ -387,14 +367,22 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle, V
     public void onFragmentStop() {
         QDLogger.i("onFragmentStop$" + hashCode() + "-" + getClass().getSimpleName());
     }
+    boolean finishWithActivity;
+    public void setFinishWithActivity(boolean finishWithActivity) {
+        this.finishWithActivity = finishWithActivity;
+    }
 
     public void finish() {
         // onClickBack();
-        if (getFragmentHelper() != null) {
-            getFragmentHelper().popBackStack(this);
-        } else {
-            if (getFragmentManager() != null) {
-                getFragmentManager().popBackStack();
+        if(finishWithActivity){
+            getActivity().finish();
+        }else {
+            if (getFragmentHelper() != null) {
+                getFragmentHelper().popBackStack(this);
+            } else {
+                if (getFragmentManager() != null) {
+                    getFragmentManager().popBackStack();
+                }
             }
         }
     }
@@ -450,10 +438,21 @@ public abstract class QuickFragment extends Fragment implements ViewLifecycle, V
                 finish();
             } else {//已经是根fragment了
                 QDLogger.e(getClass().getName() + "-已经是根fragment了");
+                //onKeyDownRootFragment(keyCode,event);
             }
             return true;//当返回true时，表示已经完整地处理了这个事件，并不希望其他的回调方法再次进行处理，而当返回false时，表示并没有完全处理完该事件，更希望其他回调方法继续对其进行处理
         } else {//其他事件自行处理
             return false;
         }
     }
+
+   /* public void onKeyDownRootFragment(int keyCode, KeyEvent event){
+        if (getFragmentHelper() != null) {
+            getFragmentHelper().onKeyDown(this);
+        } else {
+            if (getFragmentManager() != null) {
+                getFragmentManager().popBackStack();
+            }
+        }
+    }*/
 }

@@ -17,6 +17,7 @@
 package cn.demomaster.qdrouter_library.view.appbar;
 
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -145,7 +146,7 @@ public class CollapsingLayout extends FrameLayout {
     // Ensure we are using the correctly themed context rather than the context that was passed in.
     context = getContext();
 
-    TypedArray a =
+    @SuppressLint("RestrictedApi") TypedArray a =
         ThemeEnforcement.obtainStyledAttributes(
             context,
             attrs,

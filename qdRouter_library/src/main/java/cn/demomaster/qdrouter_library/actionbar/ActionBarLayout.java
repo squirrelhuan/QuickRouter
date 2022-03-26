@@ -426,7 +426,7 @@ public class ActionBarLayout extends FrameLayout {
                     break;
             }
         }
-
+        
         public Builder setStatusHeight(int statusHeight) {
             this.statusHeight = statusHeight;
             return this;

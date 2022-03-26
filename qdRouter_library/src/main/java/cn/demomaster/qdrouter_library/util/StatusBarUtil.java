@@ -48,7 +48,6 @@ public class StatusBarUtil {
      * @param colorId
      */
     public static void setStatusBarColor(Activity activity, int colorId) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = activity.getWindow();
 //      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -169,7 +168,7 @@ public class StatusBarUtil {
                 window.setAttributes(lp);
                 result = true;
             } catch (Exception e) {
-e.printStackTrace();
+                e.printStackTrace();
             }
         }
         return result;
@@ -209,12 +208,11 @@ e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
-e.printStackTrace();
+                e.printStackTrace();
             }
         }
         return result;
     }
-
 
     /**
      * Flag只有在使用了FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
@@ -224,7 +222,7 @@ e.printStackTrace();
      * @param bDark
      */
     public static void setStatusBarMode(Activity activity, boolean bDark) {
-//6.0以上
+        //6.0以上
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             View decorView = activity.getWindow().getDecorView();
             if (decorView != null) {
@@ -236,9 +234,6 @@ e.printStackTrace();
                 }
                 decorView.setSystemUiVisibility(vis);
             }
-
         }
     }
-
-
 }

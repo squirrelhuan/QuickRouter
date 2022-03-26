@@ -44,16 +44,17 @@ public class ImageTextView extends AppCompatImageView {
     }
 
     public void setTextSize(int textSize) {
+        this.textSize = textSize;
         requestLayout();
         postInvalidate();
     }
-
+    
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.QDTextView);
-            textColor = typedArray.getColor(R.styleable.QDTextView_qd_textColor, textColor);
-            textSize = typedArray.getDimensionPixelSize(R.styleable.QDTextView_qd_textSize, context.getResources().getDimensionPixelSize(R.dimen.quickdev_title_text_size));
-            text=typedArray.getString(R.styleable.QDTextView_qd_text);
+            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.QDTextView2);
+            textColor = typedArray.getColor(R.styleable.QDTextView2_qd_textColor, textColor);
+            textSize = typedArray.getDimensionPixelSize(R.styleable.QDTextView2_qd_textSize, context.getResources().getDimensionPixelSize(R.dimen.quickdev_title_text_size));
+            text=typedArray.getString(R.styleable.QDTextView2_qd_text);
             typedArray.recycle();
         }
     }
@@ -222,10 +223,9 @@ public class ImageTextView extends AppCompatImageView {
         canvas.drawText(text, x, y, mPaint);
         //canvas.drawLine( 0,  height/2,  width,  height/2, mPaint);
     }
-
+    
     private int showType;
-
     public void asTextView() {
-
+        
     }
 }

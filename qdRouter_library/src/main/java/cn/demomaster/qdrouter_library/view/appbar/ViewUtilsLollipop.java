@@ -19,6 +19,7 @@ package cn.demomaster.qdrouter_library.view.appbar;
 import android.animation.AnimatorInflater;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -43,7 +44,7 @@ class ViewUtilsLollipop {
   static void setStateListAnimatorFromAttrs(
       @NonNull View view, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
     final Context context = view.getContext();
-    final TypedArray a =
+    @SuppressLint("RestrictedApi") final TypedArray a =
         ThemeEnforcement.obtainStyledAttributes(
             context, attrs, STATE_LIST_ANIM_ATTRS, defStyleAttr, defStyleRes);
     try {

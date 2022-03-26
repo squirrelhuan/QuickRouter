@@ -16,6 +16,7 @@
 
 package cn.demomaster.qdrouter_library.view.appbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -72,7 +73,7 @@ public abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<Vie
         int availableHeight = View.MeasureSpec.getSize(parentHeightMeasureSpec);
         if (availableHeight > 0) {
           if (ViewCompat.getFitsSystemWindows(header)) {
-            final WindowInsetsCompat parentInsets = parent.getLastWindowInsets();
+            @SuppressLint("RestrictedApi") final WindowInsetsCompat parentInsets = parent.getLastWindowInsets();
             if (parentInsets != null) {
               availableHeight += parentInsets.getSystemWindowInsetTop()
                   + parentInsets.getSystemWindowInsetBottom();
@@ -125,7 +126,7 @@ public abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<Vie
           parent.getWidth() - parent.getPaddingRight() - lp.rightMargin,
           parent.getHeight() + header.getBottom() - parent.getPaddingBottom() - lp.bottomMargin);
 
-      final WindowInsetsCompat parentInsets = parent.getLastWindowInsets();
+      @SuppressLint("RestrictedApi") final WindowInsetsCompat parentInsets = parent.getLastWindowInsets();
       if (parentInsets != null
           && ViewCompat.getFitsSystemWindows(parent)
           && !ViewCompat.getFitsSystemWindows(child)) {

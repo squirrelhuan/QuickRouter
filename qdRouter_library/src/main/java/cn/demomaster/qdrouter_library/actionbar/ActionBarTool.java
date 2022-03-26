@@ -35,9 +35,7 @@ public interface ActionBarTool extends OnReleaseListener {
             actionBarLayout.setHasActionBar(hasActionBar);
         }
     }*/
-
     void setActionBarPaddingTop(ActionBarLayout.PaddingWith actionBarPaddingTop);
-
     /**
      * 设置是否合并导航栏和状态栏
      *
@@ -62,23 +60,15 @@ public interface ActionBarTool extends OnReleaseListener {
      * @param lightModle
      */
     void setLightModle(boolean lightModle);
-
     void setActionBarThemeColors(int lightColor, int darkColor);
-
     int getTextColor();
-
     /**
      * 重置文本顔色
-     *
      * @param view
      */
     void resetTextColor(View view);
-
     View getActionBarTool() ;
-
     void setActionBarTipType(ACTIONBARTIP_TYPE actionbartip_type);
-
-
     ImageTextView getRightView() ;
     void setRightOnClickListener(View.OnClickListener onClickListener) ;
     ImageTextView getTitleView() ;

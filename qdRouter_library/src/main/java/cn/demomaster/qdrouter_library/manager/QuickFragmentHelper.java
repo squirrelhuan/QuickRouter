@@ -27,7 +27,7 @@ import cn.demomaster.qdrouter_library.base.fragment.ViewLifecycle;
  * description：
  */
 public class QuickFragmentHelper {
-    public static FragmentManager fragmentManager;
+    public FragmentManager fragmentManager;
     List<Fragment> fragments;
     static FragmentManager.OnBackStackChangedListener onBackStackChangedListener = () -> {
         /*StringBuilder stringBuilder = new StringBuilder();
@@ -41,10 +41,9 @@ public class QuickFragmentHelper {
         }
         QDLogger.println(stringBuilder.toString());*/
     };
-    int containerViewId;
-
+    //int containerViewId;
     public QuickFragmentHelper(AppCompatActivity activity, int containerViewId) {
-        this.containerViewId = containerViewId;
+        //this.containerViewId = containerViewId;
         fragmentManager = activity.getSupportFragmentManager();
         //fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener);
         //fragmentManager.addOnBackStackChangedListener(onBackStackChangedListener);
@@ -55,15 +54,14 @@ public class QuickFragmentHelper {
      * 获取fragment列表，注意过滤掉fragment中嵌套的fragment。
      *
      * @return
+     * @param fragmentActivity
      */
-    public List<Fragment> getFragments() {
+    public List<Fragment> getFragments(FragmentActivity fragmentActivity) {
         List<Fragment> fragmentList = new ArrayList<>();
         List<Fragment> fragmentList2 = fragmentManager.getFragments();
-        if (fragmentList2 != null) {
-            for (Fragment fragment : fragmentList2) {
-                if (fragment instanceof QuickFragment) {
-                    fragmentList.add(fragment);
-                }
+        for (Fragment fragment : fragmentList2) {
+            if (fragment instanceof QuickFragment) {
+                fragmentList.add(fragment);
             }
         }
         return fragmentList;
@@ -76,10 +74,12 @@ public class QuickFragmentHelper {
             if (count > 0) {
                 FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(count - 1);
                 Fragment fragment = fragmentManager.findFragmentByTag(backStackEntry.getName());
-                QDLogger.d("fragment=" + fragment.getClass().getName());
-                if (fragment != null && fragment instanceof ViewLifecycle) {
+                if (fragment instanceof ViewLifecycle) {
+                    QDLogger.println("fragment=" + fragment.getClass().getName());
                     boolean ret = ((ViewLifecycle) fragment).onKeyDown(keyCode, event);
                     return ret;
+                }else {
+                    QDLogger.println("fragment2=" + fragment);
                 }
             }
         }
@@ -113,10 +113,15 @@ public class QuickFragmentHelper {
      *
      * @return
      */
-    public Fragment getCurrentFragment() {
-        List<Fragment> fragmentList = getFragments();
+    public Fragment getCurrentFragment(FragmentActivity fragmentActivity) {
+        List<Fragment> fragmentList = getFragments(fragmentActivity);
         if (fragmentList != null && fragmentList.size() > 0) {
-            return fragmentList.get(fragmentList.size() - 1);
+            for(int i=fragmentList.size()-1;i>-1;i--){
+                Fragment fragment = fragmentList.get(i);
+                if(fragment.getActivity() == fragmentActivity ) {
+                    return fragment;
+                }
+            }
         }
         return null;
     }
@@ -144,24 +149,24 @@ public class QuickFragmentHelper {
     int animation3 = R.anim.h5_slide_in_left;
     int animation4 = R.anim.h5_slide_out_right;
 
-    private void startFragment(QuickFragment fragment) {
+    /*private void startFragment(QuickFragment fragment) {
         QDLogger.i("containerViewId=" + containerViewId);
         startFragment(fragment, containerViewId);
-    }
+    }*/
 
-    private void startFragment(QuickFragment fragment, int containerViewId) {
+    private void startFragment(FragmentActivity fragmentActivity,QuickFragment fragment, int containerViewId) {
         //fragment.setFragmentHelper(this);
-        startFragment(fragment, containerViewId, true);
+        startFragment(fragmentActivity,fragment, containerViewId, true);
     }
 
-    private void startFragment(QuickFragment fragment, int containerViewId, boolean withAnimation) {
-        addFragment(fragment, containerViewId, withAnimation);
+    private void startFragment(FragmentActivity fragmentActivity,QuickFragment fragment, int containerViewId, boolean withAnimation) {
+        addFragment(fragmentActivity,fragment, containerViewId, withAnimation);
     }
 
-    public void addFragment(QuickFragment fragment, int containerViewId, boolean withAnimation) {
+    public void addFragment(FragmentActivity fragmentActivity,QuickFragment fragment, int containerViewId, boolean withAnimation) {
         fragment.containerViewId = containerViewId;
-        Fragment currentFragment = getCurrentFragment();
-        QDLogger.i("添加:" + getFragmentTag(fragment) + ",current=" + currentFragment);
+        Fragment currentFragment = getCurrentFragment(fragmentActivity);
+        QDLogger.println("添加:" + getFragmentTag(fragment) + ",current=" + currentFragment+",containerViewId="+containerViewId);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (withAnimation) {
             //这里注意动画要优先添加到事物列表中，否则会出现动画异常
@@ -242,17 +247,17 @@ public class QuickFragmentHelper {
         if (qdFragmentInterface != null) {
             (fragment).setRequestCode(qdFragmentInterface, requestCode);
         }
-        startFragment(fragment, containerViewId,withAnimation);
+        startFragment(context,fragment, containerViewId,withAnimation);
     }
 
     //重定向
     public void redirect(FragmentActivity context, QuickFragment fragment, int containerViewId) {
-        Fragment fragment1 = getCurrentFragment();
+        Fragment fragment1 = getCurrentFragment(context);
         //先移除当前的
         removeFragment(context, fragment1);
         // 注意这里 上上个可能会重新变为可视状态
         //再打开新的
-        startFragment(fragment, containerViewId);
+        startFragment(context,fragment, containerViewId);
     }
 
     public Builder build(Context context, String classPath) {
@@ -285,7 +290,7 @@ public class QuickFragmentHelper {
     }
 
     //返回根fragment
-    public void backToRoot() {
+    public void backToRoot(FragmentActivity fragmentActivity) {
         if (fragmentManager != null && fragmentManager.getBackStackEntryCount() > 1) {
             QDLogger.e("getBackStackEntryCount=" + fragmentManager.getBackStackEntryCount() + ",fragments=" + fragmentManager.getFragments().size());
             FragmentManager.BackStackEntry firstStackEntry = fragmentManager.getBackStackEntryAt(0);
@@ -308,7 +313,7 @@ public class QuickFragmentHelper {
                 ((QuickFragment) currentFragment).doResume();
             }
         } else {
-            QDLogger.i("当前已是根fragment:" + getCurrentFragment());
+            QDLogger.i("当前已是根fragment:" + getCurrentFragment(fragmentActivity));
         }
     }
 
@@ -361,8 +366,8 @@ public class QuickFragmentHelper {
             }
         }
     }*/
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Fragment fragment = getCurrentFragment();
+    public void onActivityResult(FragmentActivity fragmentActivity,int requestCode, int resultCode, Intent data) {
+        Fragment fragment = getCurrentFragment(fragmentActivity);
         if (fragment != null) {
             fragment.onActivityResult(requestCode, resultCode, data);
         }

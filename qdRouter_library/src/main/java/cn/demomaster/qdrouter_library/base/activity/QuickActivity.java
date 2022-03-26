@@ -215,11 +215,11 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
         return fragmentHelper;
     }
 
-    public void startFragment(QuickFragment fragment, int parentId,Intent intent) {
+    public void startFragment(QuickFragment fragment, int containerViewId,Intent intent) {
         //getFragmentHelper().navigate(mContext,fragment, parentId,intent);
-        
         QuickFragmentHelper.Builder builder = new QuickFragmentHelper.Builder(mContext,fragment,getFragmentHelper());
         builder.setIntent(intent);
+        builder.setContainerViewId(containerViewId);
         builder.navigation();
     }
 
