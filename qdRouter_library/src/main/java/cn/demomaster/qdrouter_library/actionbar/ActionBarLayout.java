@@ -36,7 +36,6 @@ public class ActionBarLayout extends FrameLayout {
     View actionBarView;
     View contentView;*/
     Builder mBuilder;
-
     public ActionBarLayout(Builder builder) {
         super(builder.activity);
         mBuilder = builder;
@@ -143,7 +142,7 @@ public class ActionBarLayout extends FrameLayout {
             if (child == mBuilder.statusbarView || child == mBuilder.actionBarView || child == mBuilder.contentView) {
                 continue;
             }
-            layoutChildren2(mBuilder.contentView, left, top, right, bottom, false);
+            layoutChildren2(child, left, top, right, bottom, false);
         }
     }
 
@@ -158,7 +157,7 @@ public class ActionBarLayout extends FrameLayout {
 
         int statusBarHeight = mBuilder.statusHeight;
         //Log.e("action",child.toString());
-        if (child != null && child.getVisibility() != GONE) {
+        if (child.getVisibility() != GONE) {
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             if (lp == null) {
                 lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -242,6 +241,11 @@ public class ActionBarLayout extends FrameLayout {
                 break;
         }
         return childTop;
+    }
+    int statusBarHeight;
+    public int getStatusBarHeight() {
+        return mBuilder.statusHeight;
+        //return statusBarHeight;
     }
 
     //获取导航栏高度
@@ -392,13 +396,14 @@ public class ActionBarLayout extends FrameLayout {
         private View actionBarView;
         private View contentView;
         private final Activity activity;
+        private int contentBackgroundColor =-1;
 
         public Builder(Activity activity) {
             this.activity = activity;
             setActionbarType(actionbarType);
         }
 
-        public void setActionbarType(ACTIONBAR_TYPE actionbarType) {
+        public Builder setActionbarType(ACTIONBAR_TYPE actionbarType) {
             this.actionbarType = actionbarType;
             switch (actionbarType) {
                 case NORMAL:
@@ -408,6 +413,7 @@ public class ActionBarLayout extends FrameLayout {
                     hasActionBar = true;
                     break;
                 case NO_ACTION_BAR:
+                case ACTION_STACK_NO_ACTION:
                     hasStatusBar = true;
                     hasActionBar = false;
                     break;
@@ -420,21 +426,34 @@ public class ActionBarLayout extends FrameLayout {
                     hasStatusBar = false;
                     hasActionBar = true;
                     break;
-                case ACTION_STACK_NO_ACTION:
-                    hasStatusBar = true;
-                    hasActionBar = false;
-                    break;
             }
+            return this;
         }
-        
+
+        /**
+         *  body背景色
+         * @param contentBackgroundColor
+         * @return
+         */
+        public Builder setContentBackgroundColor(int contentBackgroundColor) {
+            this.contentBackgroundColor = contentBackgroundColor;
+            return this;
+        }
+
+        public int getContentBackgroundColor() {
+            return contentBackgroundColor;
+        }
+
         public Builder setStatusHeight(int statusHeight) {
             this.statusHeight = statusHeight;
             return this;
         }
 
         public Builder setActionBarView(View actionBarView) {
-            this.actionBarView = actionBarView;
-            actionBarPaddingTop_Last = actionBarView.getPaddingTop();
+            if(actionBarView!=null) {
+                this.actionBarView = actionBarView;
+                actionBarPaddingTop_Last = actionBarView.getPaddingTop();
+            }
             return this;
         }
 

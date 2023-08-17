@@ -19,7 +19,7 @@ public interface ActionBarTool extends OnReleaseListener {
      *
      * @param actionbarType
      */
-    public void setActionBarType(ACTIONBAR_TYPE actionbarType);
+    void setActionBarType(ACTIONBAR_TYPE actionbarType);
     //private boolean hasStatusBar = true;
     //private boolean hasActionBar = true;
    /* public void setHasStatusBar(boolean hasStatusBar) {
@@ -73,7 +73,7 @@ public interface ActionBarTool extends OnReleaseListener {
     void setRightOnClickListener(View.OnClickListener onClickListener) ;
     ImageTextView getTitleView() ;
 
-    void setHeaderBackgroundColor(int color) ;
+    void setHeaderBackgroundColor(int color);
 
     void setTitle(CharSequence string) ;
     ImageTextView getLeftView() ;

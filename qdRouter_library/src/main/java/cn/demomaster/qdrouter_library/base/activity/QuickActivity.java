@@ -22,9 +22,7 @@ import cn.demomaster.qdrouter_library.actionbar.ActionBarTool;
 import cn.demomaster.qdrouter_library.actionbar.ActionBarToolImp;
 import cn.demomaster.qdrouter_library.base.fragment.QuickFragment;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
-import cn.demomaster.qdrouter_library.manager.QuickRleaser;
 import cn.demomaster.qdrouter_library.util.DisplayUtil;
-import cn.demomaster.qdrouter_library.util.QdThreadHelper;
 import cn.demomaster.qdrouter_library.util.StatusBarUtil;
 
 public class QuickActivity extends AppCompatActivity implements QDActivityInterface {
@@ -40,7 +38,8 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     public boolean isUseActionBarLayout() {
         return true;
     }
-    
+
+    //是否透明化状态栏
     @Override
     public boolean isTransparencyBar() {
         return true;
@@ -72,7 +71,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
             StatusBarUtil.transparencyBar(new WeakReference<>(mContext));
         }
         super.onCreate(savedInstanceState);
-        QDLogger.i("onCreate-"+getClass().getSimpleName()+"-"+hashCode());
+        QDLogger.println("onCreate-"+getClass().getSimpleName()+"-"+hashCode());
 
         /*if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -121,7 +120,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
      * @param mContext
      * @return
      */
-    public ActionBarLayout.Builder getActivityLayoutBuilder(QuickActivity mContext) {
+    public ActionBarLayout.Builder getActivityLayoutBuilder(Activity mContext) {
         ActionBarLayout.Builder builder = new ActionBarLayout.Builder(mContext)
                 .setActionBarView(getHeaderlayout())
                 .setHasStatusBar(true)
@@ -144,24 +143,24 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-        QDLogger.i("onSaveInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
+        QDLogger.println("onSaveInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        QDLogger.i("onRestoreInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
+        QDLogger.println("onRestoreInstanceState-"+getClass().getSimpleName()+"-"+hashCode());
     }
     @Override
     protected void onStart() {
         super.onStart();
-        QDLogger.i("onStart-"+getClass().getSimpleName()+"-"+hashCode());
+        QDLogger.println("onStart-"+getClass().getSimpleName()+"-"+hashCode());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        QDLogger.i("onResume-"+getClass().getSimpleName()+"-"+hashCode());
+        QDLogger.println("onResume-"+getClass().getSimpleName()+"-"+hashCode());
     }
 
     @Override
@@ -239,7 +238,7 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        QDLogger.d( "onBackPressed" );
+        QDLogger.println( "onBackPressed" );
     }
 
     @Override
@@ -282,6 +281,5 @@ public class QuickActivity extends AppCompatActivity implements QDActivityInterf
                 mActivity.isFinishing() ||
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mActivity.isDestroyed());
     }
-
 
 }

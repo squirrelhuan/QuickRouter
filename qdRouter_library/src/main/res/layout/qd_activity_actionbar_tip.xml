@@ -7,14 +7,14 @@
     android:paddingRight="4dp"
     android:background="@color/transparent_light_cc">
 
-   <!-- <cn.demomaster.qdrouter_library.view.StateView
+    <cn.demomaster.qdrouter_library.view.StateView
         android:id="@+id/sv_icon"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_margin="6dp"
         android:textColor="@color/black"
         android:textSize="@dimen/quickdev_title_text_size"
-        android:gravity="center_vertical" />-->
+        android:gravity="center_vertical" />
     <!-- <cn.demomaster.qdrouter_library.view.ImageTextView
          android:id="@+id/it_actionbar_common_left"
          android:layout_width="@dimen/activity_actionbar_button_width"
@@ -47,8 +47,8 @@
         android:gravity="left|center_vertical"
         android:layout_gravity="right"
         android:singleLine="true"
-        app:qd_text=""
-        app:qd_textSize="14sp"
-        app:qd_textColor="@color/dodgerblue" />
+        app:quick_text=""
+        app:quick_textSize="14sp"
+        android:textColor="@color/dodgerblue" />
 
 </FrameLayout>

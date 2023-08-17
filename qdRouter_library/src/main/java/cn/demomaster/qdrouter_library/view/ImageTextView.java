@@ -48,14 +48,24 @@ public class ImageTextView extends AppCompatImageView {
         requestLayout();
         postInvalidate();
     }
-    
+
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.QDTextView2);
-            textColor = typedArray.getColor(R.styleable.QDTextView2_qd_textColor, textColor);
-            textSize = typedArray.getDimensionPixelSize(R.styleable.QDTextView2_qd_textSize, context.getResources().getDimensionPixelSize(R.dimen.quickdev_title_text_size));
-            text=typedArray.getString(R.styleable.QDTextView2_qd_text);
+            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ImageTextView);
+            textColor = typedArray.getColor(R.styleable.ImageTextView_android_textColor, textColor);
+
+            int defSize = context.getResources().getDimensionPixelSize(R.dimen.quickdev_title_text_size);
+            textSize = typedArray.getDimensionPixelSize(R.styleable.ImageTextView_quick_textSize,defSize);
+            text = typedArray.getString(R.styleable.ImageTextView_android_text);
             typedArray.recycle();
+            //QDLogger.println("text1="+text);
+            TypedArray typedArray2 = getContext().obtainStyledAttributes(attrs, R.styleable.QDTextView);
+            textSize = typedArray2.getDimensionPixelSize(R.styleable.QDTextView_android_textSize,textSize);
+            String str = typedArray2.getString(R.styleable.QDTextView_quick_text);
+            if (!TextUtils.isEmpty(str)) {
+                text = str;
+                //QDLogger.println("text2="+text);
+            }
         }
     }
 
@@ -82,7 +92,7 @@ public class ImageTextView extends AppCompatImageView {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
-    
+
     @Override
     protected int getSuggestedMinimumWidth() {
         return (int) textWidth;//super.getSuggestedMinimumWidth();
@@ -196,12 +206,14 @@ public class ImageTextView extends AppCompatImageView {
         mPaint.setColor(textColor);
         mPaint.setTextSize(textSize);
     }
+
     private int textGravity = Gravity.CENTER;
 
     public void setTextGravity(int textGravity) {
         this.textGravity = textGravity;
         postInvalidate();
     }
+
     private void drawText(Canvas canvas) {
         //int h = getHeight();
        /* // 计算Baseline绘制的起点X轴坐标
@@ -210,22 +222,23 @@ public class ImageTextView extends AppCompatImageView {
         int baseY = (int) ((canvas.getHeight() / 2) - ((mPaint.descent() + mPaint.ascent()) / 2));*/
         float x = 0;
         float y = 0;
-        if(textGravity==Gravity.LEFT){
+        if (textGravity == Gravity.LEFT) {
             x = getPaddingLeft();
             y = height / 2f + baseLineY;
-        }else if(textGravity==Gravity.CENTER){
+        } else if (textGravity == Gravity.CENTER) {
             x = width / 2f - textWidth / 2f;
             y = height / 2f + baseLineY;
-        }else if(textGravity==Gravity.RIGHT){
+        } else if (textGravity == Gravity.RIGHT) {
             x = width / 2f - textWidth / 2f;
             y = height / 2f + baseLineY;
         }
         canvas.drawText(text, x, y, mPaint);
         //canvas.drawLine( 0,  height/2,  width,  height/2, mPaint);
     }
-    
+
     private int showType;
+
     public void asTextView() {
-        
+
     }
 }

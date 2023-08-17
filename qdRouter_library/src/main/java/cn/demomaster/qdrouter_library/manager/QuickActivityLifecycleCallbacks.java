@@ -1,13 +1,13 @@
 package cn.demomaster.qdrouter_library.manager;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -15,8 +15,6 @@ import androidx.fragment.app.FragmentManager;
 import cn.demomaster.qdlogger_library.QDLogger;
 import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleType;
 import cn.demomaster.qdrouter_library.quickview.QuickViewManager;
-
-import static android.content.Context.ACTIVITY_SERVICE;
 
 public class QuickActivityLifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
 
@@ -63,6 +61,7 @@ public class QuickActivityLifecycleCallbacks implements Application.ActivityLife
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onActivityResumed(Activity activity) {
+        //QDLogger.println("onActivityResumed="+activity);
         QuickViewManager.getInstance().onActivityResumed(activity);
         QDActivityManager.getInstance().onActivityResumed(activity);
         record(LifecycleType.onActivityResumed, activity);
@@ -73,7 +72,7 @@ public class QuickActivityLifecycleCallbacks implements Application.ActivityLife
         QDActivityManager.getInstance().onActivityPaused(activity);
         record(LifecycleType.onActivityPaused, activity);
     }
-
+    
     @Override
     public void onActivityStopped(Activity activity) {
         QDActivityManager.getInstance().onActivityStopped(activity);

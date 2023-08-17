@@ -2,12 +2,16 @@ package cn.demomaster.quickrouter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.io.File;
+
 import cn.demomaster.qdlogger_library.QDLogger;
+import cn.demomaster.qdlogger_library.config.ConfigBuilder;
 import cn.demomaster.qdrouter_library.base.activity.QuickActivity;
 import cn.demomaster.qdrouter_library.manager.QuickFragmentHelper;
 import cn.demomaster.quickrouter.fragment.Fragment01;
@@ -26,7 +30,6 @@ public class MainActivity extends QuickActivity {
         btn_replace = findViewById(R.id.btn_replace);
         btn_remove = findViewById(R.id.btn_remove);
         btn_redirect = findViewById(R.id.btn_redirect);
-        QDLogger.init(this,"/test/log");
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -47,7 +50,7 @@ public class MainActivity extends QuickActivity {
         btn_remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragmentHelper().removeFragment(mContext,getFragmentHelper().getCurrentFragment());
+                getFragmentHelper().removeFragment(mContext,getFragmentHelper().getCurrentFragment(mContext));
             }
         });
         btn_redirect.setOnClickListener(new View.OnClickListener() {

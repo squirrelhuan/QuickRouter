@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
+import androidx.annotation.AnimRes;
+import androidx.annotation.AnimatorRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -100,7 +102,7 @@ public class QuickFragmentHelper {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (fragmentManager.getBackStackEntryCount() > 0) {
-            transaction.setCustomAnimations(animation1, animation2, animation3, animation4);
+            transaction.setCustomAnimations(anima_enter, anima_exit, anima_popEnter, anima_popExit);
         }
         transaction.remove(fragment);
         transaction.commit();
@@ -144,10 +146,10 @@ public class QuickFragmentHelper {
      int animation2 = R.anim.slide_out_left;
      int animation3 = R.anim.slide_in_left;
      int animation4 = R.anim.slide_out_right;*/
-    int animation1 = R.anim.h5_slide_in_right;
-    int animation2 = R.anim.h5_slide_out_left;
-    int animation3 = R.anim.h5_slide_in_left;
-    int animation4 = R.anim.h5_slide_out_right;
+    int anima_enter = R.anim.h5_slide_in_right;
+    int anima_exit = R.anim.h5_slide_out_left;
+    int anima_popEnter = R.anim.h5_slide_in_left;
+    int anima_popExit = R.anim.h5_slide_out_right;
 
     /*private void startFragment(QuickFragment fragment) {
         QDLogger.i("containerViewId=" + containerViewId);
@@ -171,10 +173,19 @@ public class QuickFragmentHelper {
         if (withAnimation) {
             //这里注意动画要优先添加到事物列表中，否则会出现动画异常
             if (fragmentManager.getBackStackEntryCount() > 0) {
-                transaction.setCustomAnimations(animation1, animation2, animation3, animation4);
+                transaction.setCustomAnimations(anima_enter, anima_exit, anima_popEnter, anima_popExit);
+            }else {
+               // transaction.setCustomAnimations(R.anim.anim_null,R.anim.anim_null, anima_popEnter, anima_popExit);
             }
-            transaction.add(containerViewId, fragment, getFragmentTag(fragment))//R.id.qd_fragment_content_view
-                    .addToBackStack(getFragmentTag(fragment));
+//            if (currentFragment == null) {
+//                transaction.replace(containerViewId, fragment, getFragmentTag(fragment))//R.id.qd_fragment_content_view
+//                        .addToBackStack(getFragmentTag(fragment));
+//            }else {
+                transaction.add(containerViewId, fragment, getFragmentTag(fragment))//R.id.qd_fragment_content_view
+                        .addToBackStack(getFragmentTag(fragment));
+            //}
+//            transaction.add(containerViewId, fragment, getFragmentTag(fragment))//R.id.qd_fragment_content_view
+//                    .addToBackStack(getFragmentTag(fragment));
             if (currentFragment != null) {//replace模式会有动画，add模式要通过hide方法才能有动画显示
                 transaction.hide(currentFragment);
             }
@@ -203,8 +214,8 @@ public class QuickFragmentHelper {
         QDLogger.println("replaceFragment:" + getFragmentTag(fragment) + ",containerViewId=" + containerViewId);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (fragmentManager.getBackStackEntryCount() > 0) {
-            transaction.setCustomAnimations(animation1, animation2,
-                    animation3, animation4);
+            transaction.setCustomAnimations(anima_enter, anima_exit,
+                    anima_popEnter, anima_popExit);
         }
         transaction.replace(containerViewId, fragment, getFragmentTag(fragment))//R.id.qd_fragment_content_view
                 .addToBackStack(getFragmentTag(fragment))
@@ -317,7 +328,7 @@ public class QuickFragmentHelper {
         }
     }
 
-    /**
+    /*
      * 回退到某个fragment
      *
      * @param
@@ -387,7 +398,12 @@ public class QuickFragmentHelper {
         QuickFragmentHelper fragmentHelper;
         QuickFragment fragment;
         boolean withAnimation = true;
+        int enter = R.anim.h5_slide_in_right;
+        int exit =R.anim.h5_slide_out_left;
+        int popEnter = R.anim.h5_slide_in_left;
+        int popExit = R.anim.h5_slide_out_right;
         Intent intent;
+
         
         public Builder(Context context, String classPath, QuickFragmentHelper fragmentHelper) {
             this.fragmentHelper = fragmentHelper;
@@ -427,6 +443,16 @@ public class QuickFragmentHelper {
 
         public Builder setWithAnimation(boolean withAnimation) {
             this.withAnimation = withAnimation;
+            return this;
+        }
+
+        public Builder setCustomAnimations(@AnimatorRes @AnimRes int enter,
+                            @AnimatorRes @AnimRes int exit, @AnimatorRes @AnimRes int popEnter,
+                            @AnimatorRes @AnimRes int popExit){
+            this.exit = exit;
+            this.enter = enter;
+            this.popEnter = popEnter;
+            this.popExit = popExit;
             return this;
         }
 
@@ -473,6 +499,10 @@ public class QuickFragmentHelper {
                     intent.putExtras(bundle);
                     fragment.setArguments(bundle);
                 }
+                fragmentHelper.anima_enter = this.enter;
+                fragmentHelper.anima_exit = this.exit;
+                fragmentHelper.anima_popEnter = this.popEnter;
+                fragmentHelper.anima_popExit = this.popExit;
                 if (isForResult) {
                     fragmentHelper.navigateForResult(context, viewLifecycle, fragment, containerViewId, intent, requestCode, withAnimation);
                 } else {

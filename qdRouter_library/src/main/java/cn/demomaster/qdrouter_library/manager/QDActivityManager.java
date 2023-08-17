@@ -1,5 +1,8 @@
 package cn.demomaster.qdrouter_library.manager;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -10,11 +13,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -22,10 +21,6 @@ import java.util.List;
 import java.util.Stack;
 
 import cn.demomaster.qdlogger_library.QDLogger;
-import cn.demomaster.qdrouter_library.base.lifecycle.LifecycleType;
-
-import static android.content.Context.ACTIVITY_SERVICE;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * @author squirrel桓
@@ -458,7 +453,7 @@ public class QDActivityManager {
         if(activityClass!=null) {
             Intent intent = new Intent(context,activityClass);
                 if(context instanceof Activity) {
-                    ((Activity) context).startActivity(intent);
+                    context.startActivity(intent);
                 }else {
                     intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);

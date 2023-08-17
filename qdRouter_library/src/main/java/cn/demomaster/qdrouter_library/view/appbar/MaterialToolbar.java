@@ -16,6 +16,8 @@
 
 package cn.demomaster.qdrouter_library.view.appbar;
 
+import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -38,8 +40,6 @@ import com.google.android.material.R;
 import com.google.android.material.internal.ThemeEnforcement;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.MaterialShapeUtils;
-
-import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
 
 /**
  * {@code MaterialToolbar} is a {@link Toolbar} that implements certain Material features, such as

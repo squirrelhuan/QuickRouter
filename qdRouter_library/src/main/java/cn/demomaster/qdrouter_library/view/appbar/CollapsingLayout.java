@@ -16,6 +16,9 @@
 
 package cn.demomaster.qdrouter_library.view.appbar;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
+
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -52,9 +55,6 @@ import com.google.android.material.internal.ThemeEnforcement;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
 
 /**
  * CollapsingToolbarLayout is a wrapper for {@link Toolbar} which implements a collapsing app bar.
@@ -190,8 +190,8 @@ public class CollapsingLayout extends FrameLayout {
     final ViewParent parent = getParent();
     if (parent instanceof AppBarLayout) {
       // Copy over from the ABL whether we should fit system windows
-      ViewCompat.setFitsSystemWindows(this, ViewCompat.getFitsSystemWindows((View) parent));
-
+      //TODO 已经替换待验证 ViewCompat.setFitsSystemWindows(this, ViewCompat.getFitsSystemWindows((View) parent));
+      this.setFitsSystemWindows(ViewCompat.getFitsSystemWindows((View) parent));
       if (onOffsetChangedListener == null) {
         onOffsetChangedListener = new OffsetUpdateListener();
       }

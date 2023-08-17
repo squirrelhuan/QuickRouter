@@ -8,7 +8,6 @@
     <color name="colorPrimaryDark">#886495ED</color>
     <!--—控件选中后颜色-->
     <color name="colorAccent">#ffff0000</color>
-    <color name="transparent_light_cc">#ccffffff</color>
     <color name="qd_application_bg">#FFFFFF</color> <!--白色 -->
 
     <color name="qd_btn_bg_disabled">#ffb4b4b4</color>
@@ -20,5 +19,28 @@
     <color name="beige">#F5F5DC</color> <!--米色 -->
     <color name="black">#000000</color> <!--黑色 -->
     <color name="orange">#FFA500</color> <!--橙色 -->
+
+
+    <color name="transparent">#00000000</color>
+    <color name="transparent_dark_11">#11000000</color>
+    <color name="transparent_dark_22">#22000000</color>
+    <color name="transparent_dark_33">#33000000</color>
+    <color name="transparent_dark_44">#44000000</color>
+    <color name="transparent_dark_55">#55000000</color>
+    <color name="transparent_dark_66">#66000000</color>
+    <color name="transparent_dark_77">#77000000</color>
+    <color name="transparent_dark_99">#99000000</color>
+    <color name="transparent_dark_a8">#a8000000</color>
+    <color name="transparent_dark_cc">#cc000000</color>
+    <color name="transparent_light_11">#11ffffff</color>
+    <color name="transparent_light_22">#22ffffff</color>
+    <color name="transparent_light_33">#33ffffff</color>
+    <color name="transparent_light_44">#44ffffff</color>
+    <color name="transparent_light_55">#55ffffff</color>
+    <color name="transparent_light_66">#66ffffff</color>
+    <color name="transparent_light_77">#77ffffff</color>
+    <color name="transparent_light_99">#99ffffff</color>
+    <color name="transparent_light_a8">#a8ffffff</color>
+    <color name="transparent_light_cc">#ccffffff</color>
 
 </resources>

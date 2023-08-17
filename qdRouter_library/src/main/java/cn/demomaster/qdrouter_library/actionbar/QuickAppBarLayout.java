@@ -17,7 +17,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import cn.demomaster.qdrouter_library.R;
 import cn.demomaster.qdrouter_library.util.DisplayUtil;
-import cn.demomaster.qdrouter_library.util.StatusBarUtil;
 
 public class QuickAppBarLayout extends FrameLayout {
     public QuickAppBarLayout(@NonNull Context context) {
@@ -42,7 +41,6 @@ public class QuickAppBarLayout extends FrameLayout {
     }
 
     View view;
-
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.QDActionBarLayout);
